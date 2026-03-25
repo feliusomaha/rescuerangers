@@ -9,7 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #f7f4f2; font-family: 'Covik Sans', 'Nunito', sans-serif; }
+    body { background: #f7f4f2; font-family: 'Covik Sans', sans-serif; }
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap');
   </style>
 </head>
@@ -23,8 +23,8 @@
       orange:"#ff5c35", pink:"#f5acb8", cream:"#fceae6",
       blue:"#8dc6e8", yellow:"#ffc629", dark:"#24272a", white:"#ffffff",
     };
-    const H = (s) => ({ fontFamily:"'Covik Sans Bold','Nunito',sans-serif", fontWeight:700, ...s });
-    const T = (s) => ({ fontFamily:"'Covik Sans','Nunito',sans-serif", ...s });
+    const H = (s) => ({ fontFamily:"'Covik Sans Bold' ,sans-serif", fontWeight:700, ...s });
+    const T = (s) => ({ fontFamily:"'Covik Sans',sans-serif", ...s });
 
     function Bar({ label, value, max, color }) {
       const pct = Math.round((value / max) * 100);
@@ -242,7 +242,7 @@
           </div>
           {renderContent()}
           <div style={{ textAlign:"center", marginTop:20, fontSize:11, color:"#9ca3af", ...T() }}>
-            Data: ASPCA & Shelter Animals Count (2023–24) • Felius Rescue Rangers © 2025
+            Data: ASPCA & Shelter Animals Count (2023–24) • Felius Rescue Rangers © 2026
           </div>
         </div>
       );
