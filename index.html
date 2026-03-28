@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Felius Rescue Rangers</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -10,22 +10,68 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { width: 100%; min-height: 100vh; background: #f7f4f2; }
-    body { font-family: 'Nunito', sans-serif; }
-    #root { width: 100%; }
-    .slide-img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      object-position: center 30%;
-      border-radius: 12px;
-      margin: 12px 0 16px;
-      display: block;
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #f7f4f2;
+      font-family: 'Nunito', sans-serif;
     }
-    @media (min-width: 600px) {
-      .slide-img { height: 300px; }
+    #root {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     button { font-family: 'Nunito', sans-serif; }
+
+    /* Tab bar — horizontal scroll, no scrollbar visible */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      padding: 10px 12px 8px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .tab-bar::-webkit-scrollbar { display: none; }
+
+    /* Slide card scrolls internally */
+    .slide-scroll {
+      overflow-y: auto;
+      flex: 1;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 0 12px;
+    }
+    .slide-scroll::-webkit-scrollbar { display: none; }
+
+    /* Nav bar pinned to bottom */
+    .nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px 12px;
+      flex-shrink: 0;
+      background: #f7f4f2;
+    }
+
+    .slide-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      object-position: center 30%;
+      border-radius: 10px;
+      margin: 10px 0 12px;
+      display: block;
+      flex-shrink: 0;
+    }
+    @media (min-height: 700px) {
+      .slide-img { height: 200px; }
+    }
+    @media (min-height: 900px) {
+      .slide-img { height: 240px; }
+    }
   </style>
 </head>
 <body>
@@ -37,19 +83,11 @@ const B = {
   orange:"#ff5c35", pink:"#f5acb8", cream:"#fceae6",
   blue:"#8dc6e8", yellow:"#ffc629", dark:"#24272a", white:"#ffffff",
 };
-const H = (extra={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:800, ...extra });
-const T = (extra={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:400, ...extra });
-
-// ── Images (base64 data URIs from uploaded photos) ──────────────
-// We reference them by slide ID. Since we can't embed full base64 here,
-// we use the Canva thumbnail URLs from the two Canva images we have,
-// and for the 11 user-uploaded photos we use the message image references.
-// In production, replace these with your hosted image URLs on GitHub/Namecheap.
+const H = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:800, ...x });
+const T = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:400, ...x });
 
 const IMGS = {
-  // Slide ID → image URL
-  // Replace each value below with your actual hosted image URLs after uploading to GitHub
-  "welcome":        "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Fe8daf34e-ac32-4bf8-93ac-740dc5f196b5/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAIEPauUgtiGksyzZbefsDYWCZvrl2GkH7HM3T9JhdR4p&exp=1774738331&osig=AAAAAAAAAAAAAAAAAAAAAM6x4DoawcXDYTUdQHbRBmJ-nXPJfegcccbulvb_BXXW&signer=media-rpc&x-canva-quality=thumbnail",
+  "welcome":        "img-badge.png",
   "intro-1":        "img-why-do-cats-need-help.jpg",
   "intro-2":        "img-what-is-cat-rescue.jpg",
   "intro-3":        "img-the-good-news.jpg",
@@ -66,43 +104,37 @@ const IMGS = {
   "journey-6":      "img-forever-home.jpg",
 };
 
-// ── Bar chart ───────────────────────────────────────────────────
 function Bar({ label, value, max, color }) {
   const pct = Math.round((value / max) * 100);
   return (
-    <div style={{ marginBottom:14 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", fontSize:15, marginBottom:5, ...T() }}>
+    <div style={{ marginBottom:10 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, marginBottom:3, ...T() }}>
         <span>{label}</span>
         <span style={{ color:"#6b7280" }}>{value.toLocaleString()} ({pct}%)</span>
       </div>
-      <div style={{ background:"#e5e7eb", borderRadius:999, height:22 }}>
+      <div style={{ background:"#e5e7eb", borderRadius:999, height:18 }}>
         <div style={{ width:`${pct}%`, background:color, height:"100%", borderRadius:999 }} />
       </div>
     </div>
   );
 }
 
-// ── Slide visuals (charts, not images) ─────────────────────────
 function SlideVisual({ slideId }) {
   if (slideId === "facts-where") return (
-    <div style={{ marginTop:16 }}>
+    <div style={{ marginTop:12 }}>
       <Bar label="🏠 Adopted" value={2100000} max={3200000} color={B.orange} />
       <Bar label="🔄 Returned to owners" value={570000} max={3200000} color={B.blue} />
       <Bar label="😿 Euthanized" value={530000} max={3200000} color={B.pink} />
     </div>
   );
   if (slideId === "facts-progress") return (
-    <div style={{ marginTop:16 }}>
-      {[
-        {y:"1970s", v:85, c:B.orange},
-        {y:"2000s", v:45, c:B.blue},
-        {y:"Today",  v:17, c:B.yellow},
-      ].map(d => (
-        <div key={d.y} style={{ marginBottom:14 }}>
-          <div style={{ fontSize:15, marginBottom:5, ...H() }}>{d.y} — {d.v}% euthanized</div>
-          <div style={{ background:"#e5e7eb", borderRadius:999, height:22 }}>
-            <div style={{ width:`${d.v}%`, background:d.c, height:"100%", borderRadius:999, display:"flex", alignItems:"center", paddingLeft:12 }}>
-              <span style={{ color: d.c === B.yellow ? B.dark : "#fff", fontSize:13, ...H() }}>{d.v}%</span>
+    <div style={{ marginTop:12 }}>
+      {[{y:"1970s",v:85,c:B.orange},{y:"2000s",v:45,c:B.blue},{y:"Today",v:17,c:B.yellow}].map(d => (
+        <div key={d.y} style={{ marginBottom:10 }}>
+          <div style={{ fontSize:13, marginBottom:3, ...H() }}>{d.y} — {d.v}% euthanized</div>
+          <div style={{ background:"#e5e7eb", borderRadius:999, height:18 }}>
+            <div style={{ width:`${d.v}%`, background:d.c, height:"100%", borderRadius:999, display:"flex", alignItems:"center", paddingLeft:10 }}>
+              <span style={{ color:d.c===B.yellow?B.dark:"#fff", fontSize:12, ...H() }}>{d.v}%</span>
             </div>
           </div>
         </div>
@@ -112,7 +144,6 @@ function SlideVisual({ slideId }) {
   return null;
 }
 
-// ── Tabs ────────────────────────────────────────────────────────
 const TABS = [
   { id:"welcome", label:"Welcome",   emoji:"🏅" },
   { id:"intro",   label:"Intro",     emoji:"🐱" },
@@ -123,30 +154,27 @@ const TABS = [
   { id:"action",  label:"Be a Hero", emoji:"⭐" },
 ];
 
-// ── Slide data ──────────────────────────────────────────────────
 const SLIDES = {
-  welcome: [
-    {
-      id:"welcome", icon:"🏅", color:B.orange, bg:B.cream,
-      title:"Welcome, Rescue Ranger!",
-      body:"In this module you will learn why millions of cats need help each year, how cat rescue actually works step by step, who the real heroes of rescue are, what the numbers tell us about progress, and how YOU can make a difference — no matter your age!\n\nFinish all sections and the quiz to earn your official Feline Friend badge!",
-      callout:"🐾 Ready? Click the Intro tab above to start your journey!",
-    },
+  welcome:[{
+    id:"welcome", icon:"🏅", color:B.orange, bg:B.cream,
+    title:"Welcome, Rescue Ranger!",
+    body:"In this module you will discover:\n\n🐱  Why millions of cats need help each year\n📊  What the numbers tell us about rescue progress\n🏠  How a cat's journey from stray to forever home works\n🦸  Who the real heroes of rescue are\n⭐  How YOU can make a difference right now\n\nComplete all sections and the quiz to earn your official Feline Friend badge!",
+    callout:"🐾 Ready? Tap Intro above to start your journey!",
+  }],
+  intro:[
+    { id:"intro-1", icon:"😿", color:B.orange, bg:B.cream, title:"Why Do Cats Need Help?",   body:"Every year, millions of cats across the U.S. end up without a home. Some are lost, some are born on the streets, and some are given up by families who can no longer care for them.", callout:"💬 Think About It: Have you ever seen a stray cat? Where do you think it came from?" },
+    { id:"intro-2", icon:"🏠", color:B.orange, bg:B.cream, title:"What Is Cat Rescue?",      body:"Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home.", callout:"🐾 Rescue Rangers are people of all ages who help cats find safety and love!" },
+    { id:"intro-3", icon:"📉", color:B.orange, bg:B.cream, title:"The Good News",            body:"Thanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%! That means rescue work REALLY makes a difference.", callout:"⭐ The more people who care, the more cats are saved. You can be part of this change!" },
+    { id:"intro-4", icon:"🔢", color:B.orange, bg:B.cream, title:"The Numbers at a Glance",  body:"Every year in the U.S.: 3.2 million cats enter shelters, 2.1 million are adopted into loving homes, 570,000 are returned to their owners, and sadly 530,000 are still euthanized.", callout:"🧮 That means roughly 65% of shelter cats find a home or owner — and that number keeps growing!" },
   ],
-  intro: [
-    { id:"intro-1", icon:"😿", color:B.orange, bg:B.cream, title:"Why Do Cats Need Help?",    body:"Every year, millions of cats across the U.S. end up without a home. Some are lost, some are born on the streets, and some are given up by families who can no longer care for them.", callout:"💬 Think About It: Have you ever seen a stray cat? Where do you think it came from?" },
-    { id:"intro-2", icon:"🏠", color:B.orange, bg:B.cream, title:"What Is Cat Rescue?",       body:"Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home.", callout:"🐾 Rescue Rangers are people of all ages who help cats find safety and love!" },
-    { id:"intro-3", icon:"📉", color:B.orange, bg:B.cream, title:"The Good News",             body:"Thanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%! That means rescue work REALLY makes a difference.", callout:"⭐ The more people who care, the more cats are saved. You can be part of this change!" },
-    { id:"intro-4", icon:"🔢", color:B.orange, bg:B.cream, title:"The Numbers at a Glance",   body:"Every year in the U.S.: 3.2 million cats enter shelters, 2.1 million are adopted into loving homes, 570,000 are returned to their owners, and sadly 530,000 are still euthanized.", callout:"🧮 That means roughly 65% of shelter cats find a home or owner — and that number keeps growing!" },
-  ],
-  facts: [
+  facts:[
     { id:"facts-how",      icon:"😿", color:B.blue, bg:"#eaf5fc", title:"How Many Cats Need Help?",   body:"Roughly 3.2 million cats enter U.S. shelters every single year. That works out to one cat every 10 seconds!", callout:"⏱️ By the time you finish reading this card, another cat will have entered a shelter." },
     { id:"facts-where",    icon:"🏠", color:B.blue, bg:"#eaf5fc", title:"Where Do They Go?",          body:"Of the 3.2 million cats in shelters each year, most find a positive outcome — but not all.", callout:null },
     { id:"facts-over",     icon:"🐣", color:B.blue, bg:"#eaf5fc", title:"The Overpopulation Problem", body:"One unspayed female cat and her kittens can produce up to 420,000 cats over just 7 years if none are spayed or neutered. That is why spay and neuter programs are SO important!", callout:"🧮 Math Challenge: If a cat has 3 litters per year with 4 kittens each, how many kittens in 2 years? (Answer: 24!)" },
     { id:"facts-progress", icon:"📈", color:B.blue, bg:"#eaf5fc", title:"Progress Over Time",         body:"The euthanasia rate in U.S. shelters has dropped dramatically over the decades, proving that rescue efforts work!", callout:null },
-    { id:"facts-why",      icon:"💡", color:B.blue, bg:"#eaf5fc", title:"What Changed?",              body:"The dramatic drop in euthanasia happened because of more shelters, widespread spay and neuter programs, online adoption listings, foster networks, and people like YOU who care.", callout:"💬 Discussion: Which change do you think had the biggest impact? Why?" },
+    { id:"facts-why",      icon:"💡", color:B.blue, bg:"#eaf5fc", title:"What Changed?",              body:"The dramatic drop in euthanasia happened because of more shelters, widespread spay and neuter programs, online adoption listings, foster networks, and people like YOU who care.", callout:"💬 Which change do you think had the biggest impact? Why?" },
   ],
-  journey: [
+  journey:[
     { id:"journey-1", icon:"🏚️", color:"#22c55e", bg:"#f0fdf4", title:"Step 1: Stray or Surrendered",    body:"A cat may be lost, born outside, or given up by an owner who can no longer care for them. Life outside is tough — cold, hungry, and dangerous.", callout:"🐾 Many kittens are born outside to stray moms and have never known a home." },
     { id:"journey-2", icon:"🚐", color:"#22c55e", bg:"#f0fdf4", title:"Step 2: Rescued and Intake",       body:"Animal control officers or kind volunteers bring the cat to a shelter or rescue group. The cat gets a health check, vaccinations, and a warm safe place to sleep.", callout:"🩺 Intake staff record the cat's age, weight, and health so they can get the right care." },
     { id:"journey-3", icon:"🏥", color:"#22c55e", bg:"#f0fdf4", title:"Step 3: Vet Care and Spay/Neuter", body:"Every cat gets medical treatment. Spaying or neutering is critical — without it, one cat can lead to hundreds of kittens in just a few years!", callout:"💉 Many rescue groups offer free or low-cost spay/neuter to help reduce overpopulation." },
@@ -154,19 +182,19 @@ const SLIDES = {
     { id:"journey-5", icon:"📸", color:"#22c55e", bg:"#f0fdf4", title:"Step 5: Adoption Listing",         body:"Cute photos and a bio are posted online and on social media. A great profile can get a cat adopted in just days — sometimes even hours!", callout:"📱 Shelters use Instagram, Facebook, and TikTok to reach thousands of potential adopters." },
     { id:"journey-6", icon:"❤️", color:"#22c55e", bg:"#f0fdf4", title:"Step 6: Forever Home!",            body:"A family falls in love and adopts! The cat gets microchipped for safety and goes home with food, toys, and a family who will love them forever.", callout:"🎉 Adoption day is a celebration for the whole shelter — every cat deserves this moment!" },
   ],
-  roles: [
-    { id:"roles-1", icon:"🏠",  color:B.pink, bg:"#fdf2f8", title:"Foster Families",          body:"Foster families open their homes to cats temporarily — especially important for kittens and sick cats who need extra one-on-one care that shelters cannot always provide.", callout:"🐱 You do not need a huge house — just a spare room and a big heart!" },
-    { id:"roles-2", icon:"🩺",  color:B.pink, bg:"#fdf2f8", title:"Shelter Vets and Vet Techs",body:"Shelter veterinarians provide medical care, surgeries, and vaccinations to hundreds of cats. Many work for reduced pay because they are passionate about animal welfare.", callout:"🎓 If you love animals AND science, becoming a vet could be your superpower!" },
-    { id:"roles-3", icon:"📣",  color:B.pink, bg:"#fdf2f8", title:"Volunteers",                body:"Volunteers socialize cats, clean enclosures, take adoption photos, drive cats to vet appointments, and so much more. They are the backbone of every rescue operation.", callout:"⭐ Many shelters accept young volunteers with a parent — ask yours!" },
-    { id:"roles-4", icon:"💰",  color:B.pink, bg:"#fdf2f8", title:"Donors",                    body:"Cat rescue costs real money — food, medicine, surgery, and shelter facilities all add up. Generous donors make it possible for rescues to keep their doors open.", callout:"🎪 Bake sales, school fundraisers, and donation drives are ways kids can help raise funds!" },
-    { id:"roles-5", icon:"🏛️", color:B.pink, bg:"#fdf2f8", title:"Animal Control Officers",   body:"These first responders rescue stray and injured animals, respond to cruelty reports, and bring cats to safety. They enforce animal welfare laws in their communities.", callout:"🚨 Animal control officers are like superheroes for animals — they respond 24/7!" },
-    { id:"roles-6", icon:"👨‍💻", color:B.pink, bg:"#fdf2f8", title:"Social Media Advocates",    body:"Sharing adoptable cat posts online can travel thousands of miles and find the perfect family. One viral post has been known to get a cat adopted within hours!", callout:"📲 Ask a grown-up to help you share a shelter cat's adoption post today!" },
+  roles:[
+    { id:"roles-1", icon:"🏠",  color:B.pink, bg:"#fdf2f8", title:"Foster Families",           body:"Foster families open their homes to cats temporarily — especially important for kittens and sick cats who need extra one-on-one care that shelters cannot always provide.", callout:"🐱 You do not need a huge house — just a spare room and a big heart!" },
+    { id:"roles-2", icon:"🩺",  color:B.pink, bg:"#fdf2f8", title:"Shelter Vets and Vet Techs", body:"Shelter veterinarians provide medical care, surgeries, and vaccinations to hundreds of cats. Many work for reduced pay because they are passionate about animal welfare.", callout:"🎓 If you love animals AND science, becoming a vet could be your superpower!" },
+    { id:"roles-3", icon:"📣",  color:B.pink, bg:"#fdf2f8", title:"Volunteers",                 body:"Volunteers socialize cats, clean enclosures, take adoption photos, drive cats to vet appointments, and so much more. They are the backbone of every rescue operation.", callout:"⭐ Many shelters accept young volunteers with a parent — ask yours!" },
+    { id:"roles-4", icon:"💰",  color:B.pink, bg:"#fdf2f8", title:"Donors",                     body:"Cat rescue costs real money — food, medicine, surgery, and shelter facilities all add up. Generous donors make it possible for rescues to keep their doors open.", callout:"🎪 Bake sales, school fundraisers, and donation drives are ways kids can help raise funds!" },
+    { id:"roles-5", icon:"🏛️", color:B.pink, bg:"#fdf2f8", title:"Animal Control Officers",    body:"These first responders rescue stray and injured animals, respond to cruelty reports, and bring cats to safety. They enforce animal welfare laws in their communities.", callout:"🚨 Animal control officers are like superheroes for animals — they respond 24/7!" },
+    { id:"roles-6", icon:"👨‍💻", color:B.pink, bg:"#fdf2f8", title:"Social Media Advocates",     body:"Sharing adoptable cat posts online can travel thousands of miles and find the perfect family. One viral post has been known to get a cat adopted within hours!", callout:"📲 Ask a grown-up to help you share a shelter cat's adoption post today!" },
   ],
-  action: [
+  action:[
     { id:"action-1", icon:"📢", color:B.yellow, bg:"#fffbeb", title:"Spread the Word",        body:"Share adoption posts on social media or tell your family and friends about cats at your local shelter. Awareness is the first step to rescue!", callout:"💬 Challenge: Can you tell 5 people this week about cat rescue?" },
     { id:"action-2", icon:"🧸", color:B.yellow, bg:"#fffbeb", title:"Donate Supplies",        body:"Shelters always need cat food, blankets, litter, and toys. Organize a supply drive at your school and make a real difference for cats in need.", callout:"📦 Call your local shelter first to ask what they need most right now." },
     { id:"action-3", icon:"🎨", color:B.yellow, bg:"#fffbeb", title:"Make Adoption Posters",  body:"Draw or design creative posters for cats at your local shelter and ask stores, libraries, or community boards to display them.", callout:"🖍️ The more creative the better — bright colors catch people's eyes!" },
-    { id:"action-4", icon:"💌", color:B.yellow, bg:"#fffbeb", title:"Write Thank You Cards",  body:"Send heartfelt cards to shelter volunteers and staff. Knowing their work is appreciated keeps them motivated to save more cats.", callout:"✏️ A simple Thank you for saving cats! can make someone's whole day." },
+    { id:"action-4", icon:"💌", color:B.yellow, bg:"#fffbeb", title:"Write Thank You Cards",  body:"Send heartfelt cards to shelter volunteers and staff. Knowing their work is appreciated keeps them motivated to save more cats.", callout:"✏️ A simple thank you for saving cats can make someone's whole day." },
     { id:"action-5", icon:"🏡", color:B.yellow, bg:"#fffbeb", title:"Ask About Fostering",    body:"Talk to your parents! Many families can foster kittens — it is temporary, incredibly rewarding, and teaches kids so much about compassion and responsibility.", callout:"🐾 Fostering a litter of kittens is one of the most magical experiences a family can have!" },
     { id:"action-6", icon:"🐾", color:B.yellow, bg:"#fffbeb", title:"Adopt Dont Shop",        body:"When your family is ready for a pet, choose adoption from a shelter or rescue over buying from a breeder or pet store. Millions of amazing cats are waiting!", callout:"❤️ Every adoption saves TWO lives — the cat you take home and the space it frees for another." },
   ],
@@ -179,25 +207,7 @@ const QS = [
   { q:"What does TNR stand for?", opts:["Train Nurture Release","Trap Neuter Return","Tag Name Register","Track Notify Rescue"], ans:1, fact:"TNR helps manage stray populations humanely — trap, spay/neuter, then return to their territory." },
 ];
 
-// ── Badge (SVG recreation of the Rescue Rangers badge) ─────────
-function Badge({ size=180 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <path d="M30,60 Q30,20 100,15 Q170,20 170,60 L170,155 Q170,185 100,190 Q30,185 30,155 Z" fill={B.yellow} stroke={B.dark} strokeWidth="5"/>
-      <polygon points="30,60 10,20 55,55" fill={B.yellow} stroke={B.dark} strokeWidth="4"/>
-      <polygon points="170,60 190,20 145,55" fill={B.yellow} stroke={B.dark} strokeWidth="4"/>
-      <ellipse cx="100" cy="108" rx="16" ry="10" fill={B.dark}/>
-      <rect x="38" y="168" width="124" height="22" rx="11" fill={B.orange}/>
-      <text x="100" y="52" textAnchor="middle" fontSize="13" fontWeight="800" fill={B.dark} fontFamily="Nunito,sans-serif">FELIUS</text>
-      <text x="100" y="80" textAnchor="middle" fontSize="22" fontWeight="900" fill={B.orange} fontFamily="Nunito,sans-serif">FELINE</text>
-      <text x="100" y="103" textAnchor="middle" fontSize="22" fontWeight="900" fill={B.blue} fontFamily="Nunito,sans-serif">FRIEND</text>
-      <text x="100" y="184" textAnchor="middle" fontSize="10" fontWeight="800" fill={B.white} fontFamily="Nunito,sans-serif">RESCUE RANGERS</text>
-    </svg>
-  );
-}
-
-// ── Quiz ────────────────────────────────────────────────────────
-function Quiz() {
+function Quiz({ onComplete }) {
   const [qi, setQi] = useState(0);
   const [sel, setSel] = useState(null);
   const [score, setScore] = useState(0);
@@ -208,28 +218,31 @@ function Quiz() {
   const reset = () => { setQi(0); setSel(null); setScore(0); setDone(false); };
 
   if (done) return (
-    <div style={{ background:B.white, borderRadius:20, padding:"32px 24px", textAlign:"center", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
-      {score===4 ? <Badge size={160}/> : <div style={{ fontSize:72 }}>{score>=2?"⭐":"💪"}</div>}
-      <div style={{ fontSize:30, color:B.orange, margin:"14px 0 8px", ...H() }}>{score} / {QS.length}</div>
-      <div style={{ color:"#4b5563", marginBottom:8, fontSize:17, ...T() }}>
-        {score===4 ? "Perfect score! You have earned your Feline Friend badge!" : score>=2 ? "Great work — keep learning!" : "Keep going — every fact helps save a cat!"}
+    <div style={{ background:B.white, borderRadius:16, padding:"24px 20px", textAlign:"center", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
+      {score===4
+        ? <img src="img-badge.png" alt="Feline Friend Badge" style={{ width:140, height:140, objectFit:"contain", display:"block", margin:"0 auto" }} onError={e=>e.target.style.display="none"} />
+        : <div style={{ fontSize:60 }}>{score>=2?"⭐":"💪"}</div>
+      }
+      <div style={{ fontSize:26, color:B.orange, margin:"12px 0 6px", ...H() }}>{score} / {QS.length}</div>
+      <div style={{ color:"#4b5563", fontSize:15, marginBottom:score===4?6:16, ...T() }}>
+        {score===4?"Perfect score! You have earned your Feline Friend badge!":score>=2?"Great work — keep learning!":"Keep going — every fact helps save a cat!"}
       </div>
-      {score===4 && <div style={{ fontSize:14, color:B.orange, marginBottom:16, ...H() }}>🏅 You are officially a Feline Friend!</div>}
-      <button onClick={reset} style={{ padding:"13px 30px", background:B.orange, color:B.white, border:"none", borderRadius:999, fontSize:16, cursor:"pointer", ...H() }}>Try Again 🔄</button>
+      {score===4 && <div style={{ fontSize:13, color:B.orange, marginBottom:16, ...H() }}>🏅 You are officially a Feline Friend!</div>}
+      <button onClick={reset} style={{ padding:"11px 26px", background:B.orange, color:B.white, border:"none", borderRadius:999, fontSize:15, cursor:"pointer", ...H() }}>Try Again 🔄</button>
     </div>
   );
 
   const q = QS[qi];
   return (
-    <div style={{ background:B.white, borderRadius:20, padding:"24px 20px", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:14 }}>
-        <span style={{ fontSize:15, color:"#6b7280", ...T() }}>Question {qi+1} of {QS.length}</span>
-        <span style={{ fontSize:15, color:B.orange, ...H() }}>Score: {score}</span>
+    <div style={{ background:B.white, borderRadius:16, padding:"20px 18px", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
+      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
+        <span style={{ fontSize:14, color:"#6b7280", ...T() }}>Question {qi+1} of {QS.length}</span>
+        <span style={{ fontSize:14, color:B.orange, ...H() }}>Score: {score}</span>
       </div>
-      <div style={{ background:B.cream, borderRadius:12, padding:"16px 18px", marginBottom:20 }}>
-        <div style={{ fontSize:18, color:B.dark, ...H() }}>{q.q}</div>
+      <div style={{ background:B.cream, borderRadius:10, padding:"13px 15px", marginBottom:14 }}>
+        <div style={{ fontSize:16, color:B.dark, ...H() }}>{q.q}</div>
       </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:12, marginBottom:18 }}>
+      <div style={{ display:"flex", flexDirection:"column", gap:9, marginBottom:14 }}>
         {q.opts.map((opt,i) => {
           let bg="#f9fafb", border="#e5e7eb", col=B.dark;
           if (sel!==null) {
@@ -237,119 +250,122 @@ function Quiz() {
             else if (i===sel) { bg="#fef2f2"; border="#ef4444"; col="#991b1b"; }
           }
           return (
-            <button key={i} onClick={()=>pick(i)} style={{ padding:"13px 18px", borderRadius:12, border:`2px solid ${border}`, background:bg, color:col, fontSize:16, textAlign:"left", cursor:sel===null?"pointer":"default", ...T() }}>
+            <button key={i} onClick={()=>pick(i)} style={{ padding:"11px 14px", borderRadius:10, border:`2px solid ${border}`, background:bg, color:col, fontSize:15, textAlign:"left", cursor:sel===null?"pointer":"default", ...T() }}>
               {["A","B","C","D"][i]}. {opt}
             </button>
           );
         })}
       </div>
       {sel!==null && <>
-        <div style={{ background:"#fffbeb", borderRadius:12, padding:"14px 16px", borderLeft:`4px solid ${B.yellow}`, marginBottom:16, fontSize:15, ...T() }}>
+        <div style={{ background:"#fffbeb", borderRadius:10, padding:"12px 14px", borderLeft:`4px solid ${B.yellow}`, marginBottom:12, fontSize:14, ...T() }}>
           <span style={{ ...H() }}>💡 Did you know? </span>{q.fact}
         </div>
-        <button onClick={next} style={{ width:"100%", padding:14, background:B.orange, color:B.white, border:"none", borderRadius:999, fontSize:17, cursor:"pointer", ...H() }}>
-          {qi+1<QS.length ? "Next Question →" : "See My Score!"}
+        <button onClick={next} style={{ width:"100%", padding:12, background:B.orange, color:B.white, border:"none", borderRadius:999, fontSize:16, cursor:"pointer", ...H() }}>
+          {qi+1<QS.length?"Next Question →":"See My Score!"}
         </button>
       </>}
     </div>
   );
 }
 
-// ── Main App ────────────────────────────────────────────────────
 function App() {
   const [tab, setTab] = useState("welcome");
-  const [idxMap, setIdxMap] = useState({ welcome:0, intro:0, facts:0, journey:0, roles:0, action:0 });
+  const [idxMap, setIdxMap] = useState({welcome:0,intro:0,facts:0,journey:0,roles:0,action:0});
 
   const switchTab = (t) => { setTab(t); setIdxMap(prev=>({...prev,[t]:0})); };
   const go = (delta) => {
     setIdxMap(prev => {
       const slides = SLIDES[tab];
-      const next = Math.min(Math.max(prev[tab]+delta, 0), slides.length-1);
-      return { ...prev, [tab]:next };
+      const n = Math.min(Math.max(prev[tab]+delta,0), slides.length-1);
+      return {...prev,[tab]:n};
     });
   };
 
-  const renderContent = () => {
-    if (tab==="quiz") return <Quiz />;
-    const slides = SLIDES[tab];
-    const idx = idxMap[tab];
-    const slide = slides[idx];
-    const total = slides.length;
-    const ac = slide.color;
-    const imgSrc = IMGS[slide.id];
-
-    return (
-      <div>
-        <div style={{ background:B.white, borderRadius:20, padding:"24px 20px", boxShadow:"0 4px 16px rgba(0,0,0,0.07)", border:`2px solid ${ac}22` }}>
-          <div style={{ display:"inline-block", background:ac, color: ac===B.yellow ? B.dark : B.white, borderRadius:999, padding:"4px 16px", fontSize:13, marginBottom:14, ...H() }}>
-            {idx+1} / {total}
-          </div>
-          <div style={{ fontSize:22, color:B.dark, marginBottom:4, lineHeight:1.25, ...H() }}>{slide.title}</div>
-
-          {/* Image or badge */}
-          {slide.id==="welcome" ? (
-            <div style={{ display:"flex", justifyContent:"center", margin:"18px 0" }}>
-              <Badge size={170}/>
-            </div>
-          ) : imgSrc ? (
-            <img
-              src={imgSrc}
-              alt={slide.title}
-              className="slide-img"
-              onError={e => { e.target.style.display="none"; }}
-            />
-          ) : null}
-
-          <div style={{ fontSize:17, color:"#374151", lineHeight:1.75, ...T(), whiteSpace:"pre-line" }}>{slide.body}</div>
-          <SlideVisual slideId={slide.id} />
-          {slide.callout && (
-            <div style={{ marginTop:18, background:slide.bg, borderRadius:12, padding:"13px 16px", borderLeft:`4px solid ${ac}`, fontSize:15, color:B.dark, ...T() }}>
-              {slide.callout}
-            </div>
-          )}
-        </div>
-
-        {/* Nav */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:16 }}>
-          <button onClick={()=>go(-1)} disabled={idx===0}
-            style={{ padding:"11px 22px", borderRadius:999, border:"none", background:idx===0?"#e5e7eb":ac, color:idx===0?"#9ca3af": ac===B.yellow ? B.dark : B.white, fontSize:15, cursor:idx===0?"default":"pointer", ...H() }}>
-            ← Back
-          </button>
-          <div style={{ display:"flex", gap:7, flexWrap:"wrap", justifyContent:"center", maxWidth:200 }}>
-            {slides.map((_,i)=>(
-              <div key={i} onClick={()=>setIdxMap(prev=>({...prev,[tab]:i}))}
-                style={{ width:i===idx?22:10, height:10, borderRadius:999, background:i===idx?ac:"#d1d5db", cursor:"pointer", transition:"all .3s", flexShrink:0 }} />
-            ))}
-          </div>
-          <button onClick={()=>go(1)} disabled={idx===total-1}
-            style={{ padding:"11px 22px", borderRadius:999, border:"none", background:idx===total-1?"#e5e7eb":ac, color:idx===total-1?"#9ca3af": ac===B.yellow ? B.dark : B.white, fontSize:15, cursor:idx===total-1?"default":"pointer", ...H() }}>
-            Next →
-          </button>
-        </div>
-      </div>
-    );
-  };
+  const isQuiz = tab==="quiz";
+  const slides = isQuiz ? null : SLIDES[tab];
+  const idx = isQuiz ? 0 : idxMap[tab];
+  const slide = isQuiz ? null : slides[idx];
+  const total = isQuiz ? 0 : slides.length;
+  const ac = isQuiz ? B.orange : slide.color;
+  const imgSrc = isQuiz ? null : IMGS[slide.id];
 
   return (
-    <div style={{ background:"#f7f4f2", minHeight:"100vh", width:"100%", padding:"16px 12px", ...T() }}>
-      <div style={{ maxWidth:700, margin:"0 auto" }}>
+    <div style={{ display:"flex", flexDirection:"column", height:"100%", background:"#f7f4f2", maxWidth:680, margin:"0 auto", width:"100%" }}>
 
-        {/* Tab nav — scrollable on mobile */}
-        <div style={{ display:"flex", gap:7, marginBottom:20, overflowX:"auto", paddingBottom:4, WebkitOverflowScrolling:"touch" }}>
-          {TABS.map(t=>(
-            <button key={t.id} onClick={()=>switchTab(t.id)}
-              style={{ padding:"10px 16px", borderRadius:999, border:`2px solid ${tab===t.id?B.orange:"#d1d5db"}`, background:tab===t.id?B.orange:B.white, color:tab===t.id?B.white:B.dark, fontSize:14, cursor:"pointer", whiteSpace:"nowrap", flexShrink:0, ...(tab===t.id?H():T()) }}>
-              {t.emoji} {t.label}
-            </button>
-          ))}
-        </div>
+      {/* Tab bar */}
+      <div className="tab-bar">
+        {TABS.map(t => (
+          <button key={t.id} onClick={()=>switchTab(t.id)}
+            style={{ padding:"8px 14px", borderRadius:999, border:`2px solid ${tab===t.id?B.orange:"#d1d5db"}`, background:tab===t.id?B.orange:B.white, color:tab===t.id?B.white:B.dark, fontSize:13, cursor:"pointer", whiteSpace:"nowrap", flexShrink:0, ...(tab===t.id?H():T()) }}>
+            {t.emoji} {t.label}
+          </button>
+        ))}
+      </div>
 
-        {renderContent()}
+      {/* Scrollable content area */}
+      <div className="slide-scroll">
+        {isQuiz ? <Quiz /> : (
+          <div style={{ background:B.white, borderRadius:16, padding:"18px 16px", boxShadow:"0 4px 16px rgba(0,0,0,0.07)", border:`2px solid ${ac}22`, marginBottom:4 }}>
 
-        <div style={{ textAlign:"center", marginTop:24, fontSize:13, color:"#9ca3af", ...T() }}>
+            {/* Counter pill */}
+            <div style={{ display:"inline-block", background:ac, color:ac===B.yellow?B.dark:B.white, borderRadius:999, padding:"3px 14px", fontSize:12, marginBottom:10, ...H() }}>
+              {idx+1} / {total}
+            </div>
+
+            {/* Title */}
+            <div style={{ fontSize:20, color:B.dark, marginBottom:4, lineHeight:1.3, ...H() }}>{slide.title}</div>
+
+            {/* Image */}
+            {slide.id==="welcome" ? (
+              <div style={{ display:"flex", justifyContent:"center", margin:"12px 0 10px" }}>
+                <img src="img-badge.png" alt="Feline Friend Badge"
+                  style={{ width:140, height:140, objectFit:"contain" }}
+                  onError={e=>e.target.style.display="none"} />
+              </div>
+            ) : imgSrc ? (
+              <img src={imgSrc} alt={slide.title} className="slide-img"
+                onError={e=>e.target.style.display="none"} />
+            ) : null}
+
+            {/* Body */}
+            <div style={{ fontSize:15, color:"#374151", lineHeight:1.7, ...T(), whiteSpace:"pre-line" }}>{slide.body}</div>
+
+            {/* Chart */}
+            <SlideVisual slideId={slide.id} />
+
+            {/* Callout */}
+            {slide.callout && (
+              <div style={{ marginTop:14, background:slide.bg, borderRadius:10, padding:"11px 14px", borderLeft:`4px solid ${ac}`, fontSize:14, color:B.dark, ...T() }}>
+                {slide.callout}
+              </div>
+            )}
+          </div>
+        )}
+        {/* Footer inside scroll so it doesn't compete for space */}
+        <div style={{ textAlign:"center", padding:"10px 0 6px", fontSize:12, color:"#9ca3af", ...T() }}>
           Data: ASPCA &amp; Shelter Animals Count (2023–24) • Felius Rescue Rangers © 2026
         </div>
       </div>
+
+      {/* Pinned nav bar */}
+      {!isQuiz && (
+        <div className="nav-bar">
+          <button onClick={()=>go(-1)} disabled={idx===0}
+            style={{ padding:"10px 20px", borderRadius:999, border:"none", background:idx===0?"#e5e7eb":ac, color:idx===0?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:14, cursor:idx===0?"default":"pointer", ...H() }}>
+            ← Back
+          </button>
+          <div style={{ display:"flex", gap:6, flexWrap:"wrap", justifyContent:"center", maxWidth:180 }}>
+            {slides.map((_,i)=>(
+              <div key={i} onClick={()=>setIdxMap(prev=>({...prev,[tab]:i}))}
+                style={{ width:i===idx?20:9, height:9, borderRadius:999, background:i===idx?ac:"#d1d5db", cursor:"pointer", transition:"all .3s", flexShrink:0 }} />
+            ))}
+          </div>
+          <button onClick={()=>go(1)} disabled={idx===total-1}
+            style={{ padding:"10px 20px", borderRadius:999, border:"none", background:idx===total-1?"#e5e7eb":ac, color:idx===total-1?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:14, cursor:idx===total-1?"default":"pointer", ...H() }}>
+            Next →
+          </button>
+        </div>
+      )}
     </div>
   );
 }
