@@ -26,17 +26,15 @@
       margin: 0 auto;
     }
 
-    /* Tab bar */
+    /* Tab bar — wraps onto 2 rows so nothing is ever hidden */
     .tab-bar {
       flex-shrink: 0;
       display: flex;
-      gap: 6px;
-      padding: 10px 12px 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
+      flex-wrap: wrap;
+      gap: 5px;
+      padding: 8px 10px 6px;
+      justify-content: center;
     }
-    .tab-bar::-webkit-scrollbar { display: none; }
 
     /* Slide area — grows to fill available height */
     .slide-area {
@@ -375,21 +373,52 @@ function App() {
 
       {/* Nav bar */}
       {!isQuiz && (
-        <div className="nav-bar">
-          <button onClick={()=>go(-1)} disabled={idx===0}
-            style={{ padding:"9px 18px", borderRadius:999, border:"none", background:idx===0?"#e5e7eb":ac, color:idx===0?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:"clamp(12px,3vw,14px)", ...H() }}>
-            ← Back
-          </button>
-          <div style={{ display:"flex", gap:6, flexWrap:"wrap", justifyContent:"center", maxWidth:180 }}>
-            {slides.map((_,i)=>(
-              <div key={i} onClick={()=>setIdxMap(prev=>({...prev,[tab]:i}))}
-                style={{ width:i===idx?18:8, height:8, borderRadius:999, background:i===idx?ac:"#d1d5db", cursor:"pointer", transition:"all .3s", flexShrink:0 }}/>
-            ))}
+        <div className="nav-bar" style={{ flexDirection:"column", gap:8 }}>
+
+          {/* Slide Back / dots / Next */}
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%" }}>
+            <button onClick={()=>go(-1)} disabled={idx===0}
+              style={{ padding:"8px 16px", borderRadius:999, border:"none", background:idx===0?"#e5e7eb":ac, color:idx===0?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:"clamp(11px,2.8vw,13px)", ...H() }}>
+              ← Back
+            </button>
+            <div style={{ display:"flex", gap:5, flexWrap:"wrap", justifyContent:"center", maxWidth:160 }}>
+              {slides.map((_,i)=>(
+                <div key={i} onClick={()=>setIdxMap(prev=>({...prev,[tab]:i}))}
+                  style={{ width:i===idx?16:7, height:7, borderRadius:999, background:i===idx?ac:"#d1d5db", cursor:"pointer", transition:"all .3s", flexShrink:0 }}/>
+              ))}
+            </div>
+            <button onClick={()=>go(1)} disabled={idx===total-1}
+              style={{ padding:"8px 16px", borderRadius:999, border:"none", background:idx===total-1?"#e5e7eb":ac, color:idx===total-1?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:"clamp(11px,2.8vw,13px)", ...H() }}>
+              Next →
+            </button>
           </div>
-          <button onClick={()=>go(1)} disabled={idx===total-1}
-            style={{ padding:"9px 18px", borderRadius:999, border:"none", background:idx===total-1?"#e5e7eb":ac, color:idx===total-1?"#9ca3af":ac===B.yellow?B.dark:B.white, fontSize:"clamp(12px,3vw,14px)", ...H() }}>
-            Next →
-          </button>
+
+          {/* Section Prev / label / Next */}
+          {(() => {
+            const tabIds = TABS.map(t=>t.id);
+            const tabIdx = tabIds.indexOf(tab);
+            const prevTab = tabIdx > 0 ? TABS[tabIdx-1] : null;
+            const nextTab = tabIdx < TABS.length-1 ? TABS[tabIdx+1] : null;
+            return (
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", borderTop:`1px solid #e5e7eb`, paddingTop:7 }}>
+                <button
+                  onClick={()=>prevTab&&switchTab(prevTab.id)}
+                  disabled={!prevTab}
+                  style={{ padding:"7px 14px", borderRadius:999, border:`1.5px solid ${prevTab?B.dark:"#e5e7eb"}`, background:"transparent", color:prevTab?B.dark:"#d1d5db", fontSize:"clamp(10px,2.5vw,12px)", whiteSpace:"nowrap", ...H() }}>
+                  {prevTab ? `← ${prevTab.emoji} ${prevTab.label}` : ""}
+                </button>
+                <span style={{ fontSize:"clamp(10px,2.5vw,12px)", color:"#9ca3af", ...T(), textAlign:"center" }}>
+                  Section {TABS.findIndex(t=>t.id===tab)+1} of {TABS.length}
+                </span>
+                <button
+                  onClick={()=>nextTab&&switchTab(nextTab.id)}
+                  disabled={!nextTab}
+                  style={{ padding:"7px 14px", borderRadius:999, border:`1.5px solid ${nextTab?B.dark:"#e5e7eb"}`, background:"transparent", color:nextTab?B.dark:"#d1d5db", fontSize:"clamp(10px,2.5vw,12px)", whiteSpace:"nowrap", ...H() }}>
+                  {nextTab ? `${nextTab.emoji} ${nextTab.label} →` : ""}
+                </button>
+              </div>
+            );
+          })()}
         </div>
       )}
 
