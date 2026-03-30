@@ -23,6 +23,10 @@
     .para { margin-bottom: 10px; line-height: 1.7; color: #374151; font-size: 14px; font-family: 'Nunito', sans-serif; }
     .para:last-child { margin-bottom: 0; }
     .para b { font-weight: 800; color: #24272a; }
+    .para-bullet { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+    .para-bullet:last-child { margin-bottom: 0; }
+    .bullet-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .bullet-text { font-size: 14px; line-height: 1.7; color: #374151; font-family: 'Nunito', sans-serif; flex: 1; }
     .timeline { margin-top: 14px; position: relative; padding-left: 0; }
     .tl-line { position: absolute; left: 50%; top: 24px; bottom: 24px; width: 3px; background: #e5e7eb; transform: translateX(-50%); }
     .tl-row { display: flex; align-items: flex-start; margin-bottom: 18px; position: relative; }
@@ -74,13 +78,13 @@ var SLIDES = {
   welcome:[{ id:'welcome', color:'#ff5c35', bg:'#fceae6',
     title:'Welcome, Rescue Ranger!',
     paras:[
-      { bold:'In this module you will learn:' },
+      { text:'In this module you will learn:' },
       { text:'Why millions of cats need help each year' },
       { text:'What the numbers tell us about rescue progress' },
-      { text:'How rescues work' },
       { text:'How a cat\'s journey from stray to forever home works' },
-      
-      { bold:'Complete all sections and the quiz to earn your official Feline Friend badge!' }
+      { text:'Who the real heroes of rescue are' },
+      { text:'How YOU can make a difference right now' },
+      { text:'Complete all sections and the quiz to earn your official Feline Friend badge!' }
     ],
     callout:'Ready? Tap Intro above to start your journey!'
   }],
@@ -91,7 +95,7 @@ var SLIDES = {
         { bold:'Lost Cats', text:'Sometimes a pet cat sneaks out an open door or wanders too far and cannot find their way back. This is why microchipping your pets is so important.' },
         { bold:'Street-Born Cats', text:'Some cats have never had a home at all. Born outside to a mom also living on the streets, these community cats are also called feral cats.' },
         { bold:'Surrendered Cats', text:'Sometimes a family faces hard times such as moving somewhere that does not allow pets, allergies, or financial hardship. Surrendering a cat to a rescue gives them a chance at a new loving home.' },
-        { text:'So what happens next? That is where rescues like Felius Cat Cafe and Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats!' }
+        { text:'So what happens next? That is where rescues like Felius Cat Cafe and Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats with a 100% live-release rate.' }
       ],
       callout:'Think About It: Have you ever seen a stray cat in your neighborhood? Do you think it was lost, born outside, or given up by a family?'
     },
@@ -218,12 +222,19 @@ var QS = [
 ];
 
 // ── Render rich paragraphs with optional bold label ────────────
-function renderParas(paras) {
+function renderParas(paras, accentColor) {
+  var ac = accentColor || '#ff5c35';
   return paras.map(function(p, i) {
-    return ce('p', { key:i, className:'para' },
-      p.bold ? ce('b', null, p.bold + ': ') : null,
-      p.text
-    );
+    if (p.bold) {
+      return ce('div', { key:i, className:'para-bullet' },
+        ce('div', { className:'bullet-dot', style:{ background:ac } }),
+        ce('div', { className:'bullet-text' },
+          ce('b', { style:{ fontWeight:800, color:'#24272a' } }, p.bold + ': '),
+          p.text
+        )
+      );
+    }
+    return ce('p', { key:i, className:'para' }, p.text);
   });
 }
 
@@ -372,7 +383,7 @@ function App() {
         isWelcome
           ?ce('img',{src:'img-badge.png',alt:'Feline Friend Badge',className:'badge-img',onError:function(ev){ev.target.style.display='none';}})
           :(imgSrc?ce('img',{src:imgSrc,alt:slide.title,className:'slide-img',onError:function(ev){ev.target.style.display='none';}}):null),
-        ce('div',{style:{marginBottom:4}}, renderParas(slide.paras)),
+        ce('div',{style:{marginBottom:4}}, renderParas(slide.paras, slide.color)),
         slide.chart==='where'?ce(ChartWhere):null,
         slide.chart==='progress'?ce(ChartTimeline):null,
         slide.callout?ce('div',{style:{fontFamily:"'Nunito',sans-serif",fontSize:14,background:slide.bg,borderRadius:10,padding:'10px 13px',borderLeft:'4px solid '+ac,color:'#24272a',marginTop:8}},slide.callout):null
