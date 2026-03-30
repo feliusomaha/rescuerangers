@@ -19,9 +19,7 @@
     .nav-bar { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; background: #f7f4f2; }
     .footer { text-align: center; padding: 4px 0 10px; font-size: 11px; color: #9ca3af; }
     button { font-family: 'Nunito', sans-serif; cursor: pointer; }
-    .dot { height: 7px; border-radius: 999px; cursor: pointer; transition: width .3s; flex-shrink: 0; background: #d1d5db; }
-    .dot.active { width: 16px !important; }
-    .dot.inactive { width: 7px !important; }
+    .dot { height: 7px; border-radius: 999px; cursor: pointer; flex-shrink: 0; background: #d1d5db; display: inline-block; }
   </style>
 </head>
 <body>
@@ -29,16 +27,17 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script>
+(function() {
 'use strict';
-const e = React.createElement;
-const { useState } = React;
+var ce = React.createElement;
+var useState = React.useState;
 
-const B = { orange:'#ff5c35', pink:'#f5acb8', cream:'#fceae6', blue:'#8dc6e8', yellow:'#ffc629', dark:'#24272a', white:'#ffffff' };
-const fnt = 14;
-const H = (x) => Object.assign({ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:fnt }, x||{});
-const T = (x) => Object.assign({ fontFamily:"'Nunito',sans-serif", fontWeight:400, fontSize:fnt }, x||{});
+var B = { orange:'#ff5c35', pink:'#f5acb8', cream:'#fceae6', blue:'#8dc6e8', yellow:'#ffc629', dark:'#24272a', white:'#ffffff' };
 
-const IMGS = {
+function H(x) { return Object.assign({ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:14 }, x||{}); }
+function T(x) { return Object.assign({ fontFamily:"'Nunito',sans-serif", fontWeight:400, fontSize:14 }, x||{}); }
+
+var IMGS = {
   'welcome':   'img-badge.png',
   'intro-1':   'img-why-do-cats-need-help.jpg',
   'intro-2':   'img-what-is-cat-rescue.jpg',
@@ -50,130 +49,123 @@ const IMGS = {
   'journey-1': 'img-stray-or-surrendered.jpg',
   'journey-2': 'img-rescued-and-intake.jpg',
   'journey-3': 'img-vet-care-and-spay-neuter.jpg',
-  'journey-4': 'img-adoption-listing.jpg',
+  'journey-4': 'img-adoption-listing.jpg'
 };
 
-const TABS = [
-  { id:'welcome', label:'Welcome', emoji:'🏅' },
-  { id:'intro',   label:'Intro',   emoji:'🐱' },
-  { id:'facts',   label:'Numbers', emoji:'📊' },
-  { id:'journey', label:'Journey', emoji:'🏠' },
-  { id:'quiz',    label:'Quiz',    emoji:'🧠' },
+var TABS = [
+  { id:'welcome', label:'Welcome', emoji:'\uD83C\uDFC5' },
+  { id:'intro',   label:'Intro',   emoji:'\uD83D\uDC31' },
+  { id:'facts',   label:'Numbers', emoji:'\uD83D\uDCCA' },
+  { id:'journey', label:'Journey', emoji:'\uD83C\uDFE0' },
+  { id:'quiz',    label:'Quiz',    emoji:'\uD83E\uDDE0' }
 ];
 
-const SLIDES = {
-  welcome:[{ id:'welcome', color:B.orange, bg:B.cream,
+var SLIDES = {
+  welcome:[{ id:'welcome', color:'#ff5c35', bg:'#fceae6',
     title:'Welcome, Rescue Ranger!',
-    body:'In this module you will learn:\n\n🐱  Why millions of cats need help each year\n📊  What the numbers tell us about rescue progress\n🏠  How a cat\'s journey from stray to forever home works\n🦸  Who the real heroes of rescue are\n⭐  How YOU can make a difference right now\n\nComplete all sections and the quiz to earn your official Feline Friend badge!',
-    callout:'🐾 Ready? Tap Intro above to start your journey!',
+    body:'In this module you will learn:\n\nWhy millions of cats need help each year\nWhat the numbers tell us about rescue progress\nHow a cat\'s journey from stray to forever home works\nWho the real heroes of rescue are\nHow YOU can make a difference right now\n\nComplete all sections and the quiz to earn your official Feline Friend badge!',
+    callout:'Ready? Tap Intro above to start your journey!'
   }],
   intro:[
-    { id:'intro-1', color:B.orange, bg:B.cream, title:'Why Do Cats Need Help?',
-      body:'Every year, millions of cats across the U.S. end up without a home. There are a few different ways a cat might find itself without a family:\n\n🏃 Lost Cats: Sometimes a pet cat sneaks out an open door or wanders too far and cannot find their way back. This is why microchipping your pets is so important.\n\n🌿 Street-Born Cats: Some cats have never had a home at all. Born outside to a mom also living on the streets, these community cats are also called feral cats.\n\n💔 Surrendered Cats: Sometimes a family faces hard times — moving somewhere that does not allow pets, allergies, or financial hardship. Surrendering a cat to a rescue gives them a chance at a new loving home.\n\nSo what happens next? That\'s where rescues like Felius Cat Cafe & Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats with a 100% live-release rate.',
-      callout:'💬 Have you ever seen a stray cat in your neighborhood? Do you think it was lost, born outside, or given up by a family?',
+    { id:'intro-1', color:'#ff5c35', bg:'#fceae6', title:'Why Do Cats Need Help?',
+      body:'Every year, millions of cats across the U.S. end up without a home. There are a few different ways a cat might find itself without a family:\n\nLost Cats: Sometimes a pet cat sneaks out an open door or wanders too far and cannot find their way back. This is why microchipping your pets is so important.\n\nStreet-Born Cats: Some cats have never had a home at all. Born outside to a mom also living on the streets, these community cats are also called feral cats.\n\nSurrendered Cats: Sometimes a family faces hard times such as moving somewhere that does not allow pets, allergies, or financial hardship. Surrendering a cat to a rescue gives them a chance at a new loving home.\n\nSo what happens next? That is where rescues like Felius Cat Cafe and Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats with a 100% live-release rate.',
+      callout:'Think About It: Have you ever seen a stray cat in your neighborhood? Do you think it was lost, born outside, or given up by a family?'
     },
-    { id:'intro-2', color:B.orange, bg:B.cream, title:'What Is Cat Rescue?',
-      body:'Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home. It\'s a whole team effort:\n\n🏠 Shelters and Rescues: Organizations like Felius Cat Cafe & Rescue give cats a safe, warm space to eat, rest, play, and get the medical care they need.\n\n🤝 Volunteers: Everyday people who cuddle and socialize cats, clean, organize supplies, raise money, or spread the word.\n\n🩺 Veterinarians: Like doctors for animals! Many vets donate their time or offer special pricing to help rescues care for more cats.\n\n🏡 Fosters: People who open their homes to cats who need extra care or a quieter place to wait for their forever family.\n\n📣 Everyday Advocates: You do not have to work at a shelter to make a difference. Sharing a cat\'s photo, telling a friend about adoption, or just being kind to animals all count!',
-      callout:'💬 If you could pick one way to help rescue cats, what would it be?',
+    { id:'intro-2', color:'#ff5c35', bg:'#fceae6', title:'What Is Cat Rescue?',
+      body:'Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home. It is a whole team effort:\n\nShelters and Rescues: Organizations like Felius Cat Cafe and Rescue give cats a safe, warm space to eat, rest, play, and get the medical care they need.\n\nVolunteers: Everyday people who cuddle and socialize cats, clean, organize supplies, raise money, or spread the word.\n\nVeterinarians: Like doctors for animals! Many vets donate their time or offer special pricing to help rescues care for more cats.\n\nFosters: People who open their homes to cats who need extra care or a quieter place to wait for their forever family.\n\nEveryday Advocates: You do not have to work at a shelter to make a difference. Sharing a cat\'s photo, telling a friend about adoption, or just being kind to animals all count!',
+      callout:'Think About It: If you could pick one way to help rescue cats, what would it be?'
     },
-    { id:'intro-3', color:B.orange, bg:B.cream, title:'The Good News',
-      body:'Here\'s something that might surprise you: things are actually getting a LOT better for cats in the U.S., and it\'s all because of people who decided to care.\n\nThanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%!\n\n🏗️ More Rescues, More Options: Communities built networks of rescues, fosters, and advocates all working together.\n\n📱 Social Media Changed Everything: Cat photos on the internet have genuinely saved lives by connecting cats with families they might never have met.\n\n📚 Education Made a Difference: The more people learned about rescue and responsible pet ownership, the fewer cats ended up without homes.\n\n🌟 Places Like Felius Lead the Way: Since 2018, Felius has found loving homes for over 1,700 cats with a 98% live-release rate.',
-      callout:'💬 What do you think is possible for cats in the next 50 years? What kind of world would you want to create for them?',
-    },
+    { id:'intro-3', color:'#ff5c35', bg:'#fceae6', title:'The Good News',
+      body:'Here is something that might surprise you: things are actually getting a LOT better for cats in the U.S., and it is all because of people who decided to care.\n\nThanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%!\n\nMore Rescues, More Options: Communities built networks of rescues, fosters, and advocates all working together.\n\nSocial Media Changed Everything: Cat photos on the internet have genuinely saved lives by connecting cats with families they might never have met.\n\nEducation Made a Difference: The more people learned about rescue and responsible pet ownership, the fewer cats ended up without homes.\n\nPlaces Like Felius Lead the Way: Since 2018, Felius has found loving homes for over 1,700 cats with a 98% live-release rate.',
+      callout:'Think About It: What do you think is possible for cats in the next 50 years? What kind of world would you want to create for them?'
+    }
   ],
   facts:[
-    { id:'facts-1', color:B.blue, bg:'#eaf5fc', title:'How Many Cats Need Help?',
-      body:'Numbers can tell a really powerful story. Let\'s look at what\'s happening for shelter cats across the U.S. every single year:\n\n🏠 3.2 Million Cats Enter U.S. Shelters Every Year. That\'s more than the entire population of Chicago! These are lost cats, stray cats, surrendered cats, and kittens born without a home — all looking for a safe place to land.\n\n🧮 Roughly 65% of shelter cats find a home, and that number keeps growing! With more people learning about adoption, fostering, and rescue every year, that percentage is climbing.',
-      callout:'💬 By the time you finish this card, another cat will have entered a shelter. That\'s one cat every 10 seconds!',
+    { id:'facts-1', color:'#8dc6e8', bg:'#eaf5fc', title:'How Many Cats Need Help?',
+      body:'Numbers can tell a really powerful story. Let us look at what is happening for shelter cats across the U.S. every single year:\n\n3.2 Million Cats Enter U.S. Shelters Every Year. That is more than the entire population of Chicago! These are lost cats, stray cats, surrendered cats, and kittens born without a home, all looking for a safe place to land.\n\nRoughly 65% of shelter cats find a home, and that number keeps growing! With more people learning about adoption, fostering, and rescue every year, that percentage is climbing.',
+      callout:'By the time you finish this card, another cat will have entered a shelter. That is one cat every 10 seconds!'
     },
-    { id:'facts-2', color:B.blue, bg:'#eaf5fc', title:'Where Do They Go?',
-      body:'Here\'s what happens to the 3.2 million cats who enter U.S. shelters each year:\n\n💛 2.1 Million Are Adopted — over two million cats find loving families every year!\n\n🏡 570,000 Are Reunited With Their Owners — lost pets found and brought back home. This is why microchipping and ID tags are so important!\n\n💔 530,000 Are Still Euthanized — usually because there are not enough homes, resources, or space. It\'s a sad reality, but it\'s also why rescue work matters so much — and why that number has been dropping steadily for decades.',
-      callout:'💬 If you could change one of these numbers, which would it be and how do you think we could get there?',
-      chart:'where',
+    { id:'facts-2', color:'#8dc6e8', bg:'#eaf5fc', title:'Where Do They Go?', chart:'where',
+      body:'Here is what happens to the 3.2 million cats who enter U.S. shelters each year:\n\n2.1 Million Are Adopted: over two million cats find loving families every year!\n\n570,000 Are Reunited With Their Owners: lost pets found and brought back home. This is why microchipping and ID tags are so important!\n\n530,000 Are Still Euthanized: usually because there are not enough homes, resources, or space. It is a sad reality, but it is also why rescue work matters so much, and why that number has been dropping steadily for decades.',
+      callout:'Think About It: If you could change one of these numbers, which would it be and how do you think we could get there?'
     },
-    { id:'facts-3', color:B.blue, bg:'#eaf5fc', title:'The Overpopulation Problem',
-      body:'Here\'s a math problem that might blow your mind. One unspayed female cat and her descendants can produce up to 420,000 cats over just 7 years. That\'s not a typo — nearly half a million cats from one single cat!\n\n🌍 Why This Is a Problem: When there are more cats than homes, shelters fill up fast. Cats end up on the streets facing cold winters, illness, and hunger.\n\n✂️ The Solution — Spay and Neuter: Safe, simple surgeries that prevent cats from having kittens. Many rescues also use TNR (Trap, Neuter, Return) to humanely reduce outdoor cat populations.\n\n🔢 The Math: Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each. Just from one cat: 3 litters x 4 kittens x 2 years = 24 kittens!',
-      callout:'💬 Why do you think spay and neuter programs are so important? How could communities make these programs easier to access?',
+    { id:'facts-3', color:'#8dc6e8', bg:'#eaf5fc', title:'The Overpopulation Problem',
+      body:'Here is a math problem that might blow your mind. One unspayed female cat and her descendants can produce up to 420,000 cats over just 7 years. That is not a typo. Nearly half a million cats from one single cat!\n\nWhy This Is a Problem: When there are more cats than homes, shelters fill up fast. Cats end up on the streets facing cold winters, illness, and hunger.\n\nThe Solution: Spay and Neuter Programs provide safe, simple surgeries that prevent cats from having kittens. Many rescues also use TNR (Trap, Neuter, Return) to humanely reduce outdoor cat populations.\n\nThe Math: Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each. Just from one cat in two years: 3 litters x 4 kittens x 2 years = 24 kittens!',
+      callout:'Think About It: Why do you think spay and neuter programs are so important? How could communities make these programs easier to access?'
     },
-    { id:'facts-4', color:B.blue, bg:'#eaf5fc', title:'Proof That Rescue Work Works',
-      body:'The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — and it did not happen by accident. It happened because people cared enough to take action.\n\nIn the 1970s, an estimated 20 million cats and dogs were euthanized every year. Today that number is a fraction of what it once was. Here\'s what changed:\n\n🏠 More shelters and rescues opened, building entire networks of people working together.\n✂️ Spay and neuter programs made surgeries affordable, meaning fewer unplanned litters.\n💻 Online adoption listings let a cat\'s photo reach thousands of potential families in one afternoon.\n🏡 Foster networks grew, giving cats warm places to wait while freeing up shelter space.\n🌟 And millions of everyday people — like you — decided that cats\' lives matter.',
-      callout:'💬 Which change do you think had the biggest impact? What do you think the next big breakthrough for rescue could be?',
-      chart:'progress',
-    },
+    { id:'facts-4', color:'#8dc6e8', bg:'#eaf5fc', title:'Proof That Rescue Work Works', chart:'progress',
+      body:'The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years, and it did not happen by accident. It happened because people cared enough to take action.\n\nIn the 1970s, an estimated 20 million cats and dogs were euthanized every year. Today that number is a fraction of what it once was. Here is what changed:\n\nMore shelters and rescues opened, building entire networks of people working together.\nSpay and neuter programs made surgeries affordable, meaning fewer unplanned litters.\nOnline adoption listings let a cat\'s photo reach thousands of potential families in one afternoon.\nFoster networks grew, giving cats warm places to wait while freeing up shelter space.\nAnd millions of everyday people like you decided that cats\' lives matter.',
+      callout:'Think About It: Which change do you think had the biggest impact? What do you think the next big breakthrough for rescue could be?'
+    }
   ],
   journey:[
     { id:'journey-1', color:'#22c55e', bg:'#f0fdf4', title:'Step 1: Intake',
-      body:'Every cat in a rescue has a story. Here are a few ways rescues receive cats:\n\n❤️ A good samaritan found a friendly stray or discovered a litter of kittens born outside.\n\n😿 Surrendered by families facing hard circumstances like financial hardship or a no-pet housing policy.\n\n🚗 Transferred from a partner rescue that is over capacity and needs help placing cats.\n\nHowever a cat arrives, one thing is always true: they need help, and rescue is ready. Most rescues have a formal intake form that must be filled out beforehand — this helps keep track of their impact and documents important information about each cat.',
-      callout:'💬 What do you think a cat might be feeling the very first moment they arrive at a rescue? What would help them feel safe?',
+      body:'Every cat in a rescue has a story. Here are a few ways rescues receive cats:\n\nA good samaritan found a friendly stray or discovered a litter of kittens born outside.\n\nSurrendered by families facing hard circumstances like financial hardship or a no-pet housing policy.\n\nTransferred from a partner rescue that is over capacity and needs help placing cats.\n\nHowever a cat arrives, one thing is always true: they need help, and rescue is ready. Most rescues have a formal intake form that must be filled out beforehand. This helps keep track of their impact and documents important information about each cat.',
+      callout:'Think About It: What do you think a cat might be feeling the very first moment they arrive at a rescue? What would help them feel safe?'
     },
     { id:'journey-2', color:'#22c55e', bg:'#f0fdf4', title:'Step 2: Evaluation and Foster Placement',
-      body:'Once a cat arrives, the rescue team gets to work figuring out exactly what that cat needs and where they will thrive best.\n\n🩺 Health Check: Every cat gets a full health check covering weight, age, temperature, and overall condition. Vaccinations are given, fleas or parasites are treated, and injuries are addressed. They also get microchipped so they can always be identified.\n\n🏡 Foster Placement: Most cats are placed in a foster home before entering the shelter to make sure all vetting requirements are met. A few weeks in a loving home can transform a scared cat into a confident, adoptable one through a process called socialization.\n\n📋 Building a Profile: Everything learned about the cat is recorded — health history and personality. Is this cat shy or social? Do they like other cats? Playful or a lap cat? All of these details help find their perfect family.',
-      callout:'💬 Why do you think it\'s important to understand a cat\'s personality? How might a shy cat\'s needs differ from a super social cat\'s?',
+      body:'Once a cat arrives, the rescue team gets to work figuring out exactly what that cat needs and where they will thrive best.\n\nHealth Check: Every cat gets a full health check covering weight, age, temperature, and overall condition. Vaccinations are given, fleas or parasites are treated, and injuries are addressed. They also get microchipped so they can always be identified.\n\nFoster Placement: Most cats are placed in a foster home before entering the shelter to make sure all vetting requirements are met. A few weeks in a loving home can transform a scared cat into a confident, adoptable one through a process called socialization.\n\nBuilding a Profile: Everything learned about the cat is recorded including health history and personality. Is this cat shy or social? Do they like other cats? Playful or a lap cat? All of these details help find their perfect family.',
+      callout:'Think About It: Why do you think it is important to understand a cat\'s personality? How might a shy cat\'s needs differ from a super social cat\'s?'
     },
     { id:'journey-3', color:'#22c55e', bg:'#f0fdf4', title:'Step 3: Vet Care',
-      body:'Before any cat is made available for adoption, they receive comprehensive medical care to make sure they are healthy, safe, and ready for their new home. At Felius, all cats are completely vetted before entering the playroom.\n\n💉 Full Medical Treatment: Every cat is spayed or neutered, dewormed, microchipped, and vaccinated before they set a paw in the playroom.\n\n🏥 Reducing the Spread of Illness: Cats that first enter rescue can sometimes be sick without anyone knowing it yet. Foster placement helps prevent the spread of illness while giving them a safe, quiet space to heal.\n\n💊 Ongoing Preventative Care: Keeping cats healthy does not stop after that first vet visit. Cats stay up to date on vaccinations and preventative treatments throughout their time in foster care.',
-      callout:'💡 Did you know? It costs an average of $84 per month to care for each individual rescue cat at Felius! That\'s why donations, adoption fees, and community support are so important.',
+      body:'Before any cat is made available for adoption, they receive comprehensive medical care to make sure they are healthy, safe, and ready for their new home. At Felius, all cats are completely vetted before entering the playroom.\n\nFull Medical Treatment: Every cat is spayed or neutered, dewormed, microchipped, and vaccinated before they set a paw in the playroom.\n\nReducing the Spread of Illness: Cats that first enter rescue can sometimes be sick without anyone knowing it yet. Foster placement helps prevent the spread of illness while giving them a safe, quiet space to heal.\n\nOngoing Preventative Care: Keeping cats healthy does not stop after that first vet visit. Cats stay up to date on vaccinations and preventative treatments throughout their time in foster care.',
+      callout:'Did You Know? It costs an average of $84 per month to care for each individual rescue cat at Felius! That is why donations, adoption fees, and community support are so important.'
     },
     { id:'journey-4', color:'#22c55e', bg:'#f0fdf4', title:'Step 4: Adoption',
-      body:'Finding a cat a loving home is not just about posting a cute photo and hoping for the best. There\'s a thoughtful process designed with one goal: making sure every cat lands somewhere safe, happy, and permanent.\n\n📸 It Starts With a Great Profile: Cute photos and a fun bio are posted online so potential adopters can get to know a cat before they even walk through the door. At Felius, adopters can meet cats directly in the playroom!\n\n📋 The Application Process: Adopters fill out an application so the rescue can learn about their home, lifestyle, and experience with cats — making sure every match is the right one.\n\n💰 Why There\'s an Adoption Fee: By the time a cat is ready for adoption, the rescue has already covered spay/neuter surgery, vaccinations, microchipping, and medical care. Adoption fees help cover those costs so the rescue can turn around and help the next cat in need.',
-      callout:'💬 If you were filling out an adoption application, what would be the most important question to ask a potential adopter?',
-    },
-  ],
+      body:'Finding a cat a loving home is not just about posting a cute photo and hoping for the best. There is a thoughtful process designed with one goal: making sure every cat lands somewhere safe, happy, and permanent.\n\nIt Starts With a Great Profile: Cute photos and a fun bio are posted online so potential adopters can get to know a cat before they even walk through the door. At Felius, adopters can meet cats directly in the playroom!\n\nThe Application Process: Adopters fill out an application so the rescue can learn about their home, lifestyle, and experience with cats, making sure every match is the right one.\n\nWhy There Is an Adoption Fee: By the time a cat is ready for adoption, the rescue has already covered spay and neuter surgery, vaccinations, microchipping, and medical care. Adoption fees help cover those costs so the rescue can turn around and help the next cat in need.',
+      callout:'Think About It: If you were filling out an adoption application, what would be the most important question to ask a potential adopter?'
+    }
+  ]
 };
 
-const QS = [
+var QS = [
   { q:'What is a foster home for a cat?',
     opts:['A permanent forever home','A temporary home where a cat waits for adoption','A veterinary clinic','A pet store'],
     ans:1, fact:'Foster homes are temporary homes where cats wait for their forever family. A few weeks in a loving foster home can transform a scared cat into a confident, adoptable one!' },
   { q:'How many cats enter U.S. shelters every year?',
     opts:['About 500,000','About 1 million','About 3.2 million','About 10 million'],
-    ans:2, fact:'Roughly 3.2 million cats enter U.S. shelters each year — that\'s one cat every 10 seconds!' },
+    ans:2, fact:'Roughly 3.2 million cats enter U.S. shelters each year. That is one cat every 10 seconds!' },
   { q:'At what age can cats start reproducing?',
     opts:['12 months old','8 months old','4 months old','2 years old'],
-    ans:2, fact:'Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each — which is why spay and neuter programs are so important!' },
+    ans:2, fact:'Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each, which is why spay and neuter programs are so important!' },
   { q:'By how much has the shelter euthanasia rate dropped over the last 50 years?',
-    opts:['About 25%','About 50%','About 75%','It hasn\'t changed'],
-    ans:2, fact:'The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — proof that rescue work really works!' },
+    opts:['About 25%','About 50%','About 75%','It has not changed'],
+    ans:2, fact:'The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years. Proof that rescue work really works!' },
   { q:'Why is vetting cats so important before adoption?',
-    opts:['It makes cats look better in photos','It ensures cats are spayed/neutered, vaccinated, and healthy before going home','It is required by law in all states','It helps cats learn their name'],
-    ans:1, fact:'Before adoption, every cat at Felius is spayed or neutered, dewormed, microchipped, and vaccinated — making sure they are healthy, safe, and ready for their new home!' },
+    opts:['It makes cats look better in photos','It ensures cats are spayed, neutered, vaccinated, and healthy before going home','It is required by law in all states','It helps cats learn their name'],
+    ans:1, fact:'Before adoption, every cat at Felius is spayed or neutered, dewormed, microchipped, and vaccinated, making sure they are healthy, safe, and ready for their new home!' }
 ];
 
-// ── Bar chart ──────────────────────────────────────────────────
 function Bar(props) {
   var pct = Math.round((props.value / props.max) * 100);
-  return e('div', { style:{ marginBottom:8 } },
-    e('div', { style:T({ display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:3 }) },
-      e('span', null, props.label),
-      e('span', { style:{ color:'#6b7280' } }, props.value.toLocaleString() + ' (' + pct + '%)')
+  return ce('div', { style:{ marginBottom:8 } },
+    ce('div', { style:T({ display:'flex', justifyContent:'space-between', fontSize:13, marginBottom:3 }) },
+      ce('span', null, props.label),
+      ce('span', { style:{ color:'#6b7280' } }, props.value.toLocaleString() + ' (' + pct + '%)')
     ),
-    e('div', { style:{ background:'#e5e7eb', borderRadius:999, height:18 } },
-      e('div', { style:{ width:pct+'%', background:props.color, height:'100%', borderRadius:999 } })
+    ce('div', { style:{ background:'#e5e7eb', borderRadius:999, height:18 } },
+      ce('div', { style:{ width:pct+'%', background:props.color, height:'100%', borderRadius:999 } })
     )
   );
 }
 
 function ChartWhere() {
-  return e('div', { style:{ marginTop:10, flexShrink:0 } },
-    e(Bar, { label:'🏠 Adopted', value:2100000, max:3200000, color:B.orange }),
-    e(Bar, { label:'🔄 Returned to owners', value:570000, max:3200000, color:B.blue }),
-    e(Bar, { label:'😿 Euthanized', value:530000, max:3200000, color:B.pink })
+  return ce('div', { style:{ marginTop:10 } },
+    ce(Bar, { label:'Adopted', value:2100000, max:3200000, color:'#ff5c35' }),
+    ce(Bar, { label:'Returned to owners', value:570000, max:3200000, color:'#8dc6e8' }),
+    ce(Bar, { label:'Euthanized', value:530000, max:3200000, color:'#f5acb8' })
   );
 }
 
 function ChartProgress() {
-  var rows = [
-    { y:'1970s', v:85, c:B.orange },
-    { y:'2000s', v:45, c:B.blue },
-    { y:'Today', v:17, c:B.yellow },
-  ];
-  return e('div', { style:{ marginTop:10, flexShrink:0 } },
+  var rows = [{ y:'1970s', v:85, c:'#ff5c35' }, { y:'2000s', v:45, c:'#8dc6e8' }, { y:'Today', v:17, c:'#ffc629' }];
+  return ce('div', { style:{ marginTop:10 } },
     rows.map(function(d) {
-      return e('div', { key:d.y, style:{ marginBottom:8 } },
-        e('div', { style:H({ fontSize:13, marginBottom:3 }) }, d.y + ' — ' + d.v + '% euthanized'),
-        e('div', { style:{ background:'#e5e7eb', borderRadius:999, height:18 } },
-          e('div', { style:{ width:d.v+'%', background:d.c, height:'100%', borderRadius:999, display:'flex', alignItems:'center', paddingLeft:8 } },
-            e('span', { style:H({ color: d.c===B.yellow ? B.dark : '#fff', fontSize:11 }) }, d.v+'%')
+      return ce('div', { key:d.y, style:{ marginBottom:8 } },
+        ce('div', { style:H({ fontSize:13, marginBottom:3 }) }, d.y + ' - ' + d.v + '% euthanized'),
+        ce('div', { style:{ background:'#e5e7eb', borderRadius:999, height:18 } },
+          ce('div', { style:{ width:d.v+'%', background:d.c, height:'100%', borderRadius:999, display:'flex', alignItems:'center', paddingLeft:8 } },
+            ce('span', { style:H({ color: d.c==='#ffc629' ? '#24272a' : '#fff', fontSize:11 }) }, d.v+'%')
           )
         )
       );
@@ -181,200 +173,148 @@ function ChartProgress() {
   );
 }
 
-// ── Quiz ───────────────────────────────────────────────────────
 function Quiz() {
-  var _s = useState(0); var qi = _s[0]; var setQi = _s[1];
-  var _s2 = useState(null); var sel = _s2[0]; var setSel = _s2[1];
-  var _s3 = useState(0); var score = _s3[0]; var setScore = _s3[1];
-  var _s4 = useState(false); var done = _s4[0]; var setDone = _s4[1];
+  var s1 = useState(0); var qi = s1[0]; var setQi = s1[1];
+  var s2 = useState(null); var sel = s2[0]; var setSel = s2[1];
+  var s3 = useState(0); var score = s3[0]; var setScore = s3[1];
+  var s4 = useState(false); var done = s4[0]; var setDone = s4[1];
 
-  function pick(i) {
-    if (sel !== null) return;
-    setSel(i);
-    if (i === QS[qi].ans) setScore(function(s){ return s+1; });
-  }
-  function next() {
-    if (qi+1 >= QS.length) setDone(true);
-    else { setQi(function(q){ return q+1; }); setSel(null); }
-  }
+  function pick(i) { if (sel !== null) return; setSel(i); if (i === QS[qi].ans) setScore(function(s) { return s+1; }); }
+  function next() { if (qi+1 >= QS.length) setDone(true); else { setQi(function(q) { return q+1; }); setSel(null); } }
   function reset() { setQi(0); setSel(null); setScore(0); setDone(false); }
 
   if (done) {
     var perfect = score === QS.length;
-    return e('div', { style:{ background:B.white, borderRadius:16, padding:'24px 20px', textAlign:'center', boxShadow:'0 4px 16px rgba(0,0,0,0.07)' } },
-      perfect
-        ? e('img', { src:'img-badge.png', alt:'Feline Friend Badge', style:{ width:140, height:140, objectFit:'contain', display:'block', margin:'0 auto' }, onError:function(ev){ ev.target.style.display='none'; } })
-        : e('div', { style:{ fontSize:60 } }, score>=3 ? '⭐' : '💪'),
-      e('div', { style:H({ fontSize:26, color:B.orange, margin:'12px 0 6px' }) }, score + ' / ' + QS.length),
-      e('div', { style:T({ color:'#4b5563', marginBottom: perfect ? 6 : 16 }) },
-        perfect ? 'Perfect score! You have earned your Feline Friend badge!' : score>=3 ? 'Great work — keep learning!' : 'Keep going — every fact helps save a cat!'
+    return ce('div', { style:{ background:'#fff', borderRadius:16, padding:'24px 20px', textAlign:'center', boxShadow:'0 4px 16px rgba(0,0,0,0.07)' } },
+      perfect ? ce('img', { src:'img-badge.png', alt:'Feline Friend Badge', style:{ width:140, height:140, objectFit:'contain', display:'block', margin:'0 auto' }, onError:function(ev) { ev.target.style.display='none'; } })
+               : ce('div', { style:{ fontSize:60 } }, score >= 3 ? '?' : '?'),
+      ce('div', { style:H({ fontSize:26, color:'#ff5c35', margin:'12px 0 6px' }) }, score + ' / ' + QS.length),
+      ce('div', { style:T({ color:'#4b5563', marginBottom: perfect ? 6 : 16 }) },
+        perfect ? 'Perfect score! You have earned your Feline Friend badge!' : score >= 3 ? 'Great work, keep learning!' : 'Keep going, every fact helps save a cat!'
       ),
-      perfect && e('div', { style:H({ fontSize:13, color:B.orange, marginBottom:16 }) }, '🏅 You are officially a Feline Friend!'),
-      e('button', { onClick:reset, style:H({ padding:'11px 26px', background:B.orange, color:B.white, border:'none', borderRadius:999 }) }, 'Try Again 🔄')
+      perfect && ce('div', { style:H({ fontSize:13, color:'#ff5c35', marginBottom:16 }) }, 'You are officially a Feline Friend!'),
+      ce('button', { onClick:reset, style:H({ padding:'11px 26px', background:'#ff5c35', color:'#fff', border:'none', borderRadius:999 }) }, 'Try Again')
     );
   }
 
   var q = QS[qi];
-  return e('div', { style:{ background:B.white, borderRadius:16, padding:'20px 18px', boxShadow:'0 4px 16px rgba(0,0,0,0.07)' } },
-    e('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:12 } },
-      e('span', { style:T({ color:'#6b7280' }) }, 'Question ' + (qi+1) + ' of ' + QS.length),
-      e('span', { style:H({ color:B.orange }) }, 'Score: ' + score)
+  return ce('div', { style:{ background:'#fff', borderRadius:16, padding:'20px 18px', boxShadow:'0 4px 16px rgba(0,0,0,0.07)' } },
+    ce('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:12 } },
+      ce('span', { style:T({ color:'#6b7280' }) }, 'Question ' + (qi+1) + ' of ' + QS.length),
+      ce('span', { style:H({ color:'#ff5c35' }) }, 'Score: ' + score)
     ),
-    e('div', { style:{ background:B.cream, borderRadius:10, padding:'13px 15px', marginBottom:14 } },
-      e('div', { style:H({ color:B.dark }) }, q.q)
+    ce('div', { style:{ background:'#fceae6', borderRadius:10, padding:'13px 15px', marginBottom:14 } },
+      ce('div', { style:H({ color:'#24272a' }) }, q.q)
     ),
-    e('div', { style:{ display:'flex', flexDirection:'column', gap:9, marginBottom:14 } },
+    ce('div', { style:{ display:'flex', flexDirection:'column', gap:9, marginBottom:14 } },
       q.opts.map(function(opt, i) {
-        var bg='#f9fafb', border='#e5e7eb', col=B.dark;
+        var bg='#f9fafb', border='#e5e7eb', col='#24272a';
         if (sel !== null) {
           if (i === q.ans) { bg='#f0fdf4'; border='#22c55e'; col='#166534'; }
           else if (i === sel) { bg='#fef2f2'; border='#ef4444'; col='#991b1b'; }
         }
-        return e('button', {
-          key:i, onClick:function(){ pick(i); },
-          style:T({ padding:'10px 14px', borderRadius:10, border:'2px solid '+border, background:bg, color:col, textAlign:'left', cursor:sel===null?'pointer':'default' })
-        }, ['A','B','C','D'][i] + '. ' + opt);
+        return ce('button', { key:i, onClick:function() { pick(i); }, style:T({ padding:'10px 14px', borderRadius:10, border:'2px solid '+border, background:bg, color:col, textAlign:'left', cursor:sel===null?'pointer':'default', display:'block', width:'100%' }) },
+          ['A','B','C','D'][i] + '. ' + opt);
       })
     ),
-    sel !== null && e('div', null,
-      e('div', { style:T({ background:'#fffbeb', borderRadius:10, padding:'11px 13px', borderLeft:'4px solid '+B.yellow, marginBottom:12 }) },
-        e('span', { style:H() }, '💡 Did you know? '), q.fact
+    sel !== null && ce('div', null,
+      ce('div', { style:T({ background:'#fffbeb', borderRadius:10, padding:'11px 13px', borderLeft:'4px solid #ffc629', marginBottom:12 }) },
+        ce('span', { style:H() }, 'Did you know? '), q.fact
       ),
-      e('button', { onClick:next, style:H({ width:'100%', padding:11, background:B.orange, color:B.white, border:'none', borderRadius:999 }) },
-        qi+1 < QS.length ? 'Next Question →' : 'See My Score!'
+      ce('button', { onClick:next, style:H({ width:'100%', padding:11, background:'#ff5c35', color:'#fff', border:'none', borderRadius:999, display:'block' }) },
+        qi+1 < QS.length ? 'Next Question' : 'See My Score!'
       )
     )
   );
 }
 
-// ── Main App ───────────────────────────────────────────────────
 function App() {
-  var _t = useState('welcome'); var tab = _t[0]; var setTab = _t[1];
-  var _m = useState({ welcome:0, intro:0, facts:0, journey:0 });
-  var idxMap = _m[0]; var setIdxMap = _m[1];
+  var t1 = useState('welcome'); var tab = t1[0]; var setTab = t1[1];
+  var t2 = useState({ welcome:0, intro:0, facts:0, journey:0 }); var idxMap = t2[0]; var setIdxMap = t2[1];
 
-  function switchTab(t) {
-    setTab(t);
-    setIdxMap(function(prev){ var n=Object.assign({},prev); n[t]=0; return n; });
-  }
+  function switchTab(t) { setTab(t); setIdxMap(function(p) { var n=Object.assign({},p); n[t]=0; return n; }); }
   function go(delta) {
-    setIdxMap(function(prev) {
+    setIdxMap(function(p) {
       var slides = SLIDES[tab];
-      var n = Math.min(Math.max(prev[tab]+delta, 0), slides.length-1);
-      var next = Object.assign({}, prev); next[tab] = n; return next;
+      var ni = Math.min(Math.max(p[tab]+delta, 0), slides.length-1);
+      var n = Object.assign({}, p); n[tab] = ni; return n;
     });
   }
-  function setDot(i) {
-    setIdxMap(function(prev){ var n=Object.assign({},prev); n[tab]=i; return n; });
-  }
+  function setDot(i) { setIdxMap(function(p) { var n=Object.assign({},p); n[tab]=i; return n; }); }
 
   var isQuiz = tab === 'quiz';
   var slides = isQuiz ? null : SLIDES[tab];
   var idx = isQuiz ? 0 : idxMap[tab];
   var slide = isQuiz ? null : slides[idx];
   var total = isQuiz ? 0 : slides.length;
-  var ac = isQuiz ? B.orange : slide.color;
+  var ac = isQuiz ? '#ff5c35' : slide.color;
   var isWelcome = !isQuiz && slide.id === 'welcome';
-  var imgSrc = !isQuiz && IMGS[slide.id];
-
-  var tabIdx = TABS.findIndex(function(t){ return t.id === tab; });
+  var imgSrc = !isQuiz ? IMGS[slide.id] : null;
+  var tabIdx = TABS.findIndex(function(t) { return t.id === tab; });
   var prevTab = tabIdx > 0 ? TABS[tabIdx-1] : null;
   var nextTab = tabIdx < TABS.length-1 ? TABS[tabIdx+1] : null;
 
-  return e('div', { className:'app' },
+  return ce('div', { className:'app' },
 
-    // Tab bar
-    e('div', { className:'tab-bar' },
+    ce('div', { className:'tab-bar' },
       TABS.map(function(t) {
         var active = tab === t.id;
-        return e('button', {
-          key:t.id, onClick:function(){ switchTab(t.id); },
-          style:(active ? H : T)({ padding:'8px 13px', borderRadius:999, border:'2px solid '+(active?B.orange:'#d1d5db'), background:active?B.orange:B.white, color:active?B.white:B.dark, whiteSpace:'nowrap', flexShrink:0 })
+        return ce('button', { key:t.id, onClick:function() { switchTab(t.id); },
+          style:(active ? H : T)({ padding:'8px 13px', borderRadius:999, border:'2px solid '+(active?'#ff5c35':'#d1d5db'), background:active?'#ff5c35':'#fff', color:active?'#fff':'#24272a', whiteSpace:'nowrap', flexShrink:0 })
         }, t.emoji + ' ' + t.label);
       })
     ),
 
-    // Slide area
-    e('div', { className:'slide-area' },
-      isQuiz ? e(Quiz) :
-      e('div', { className:'slide-card', style:{ border:'2px solid '+ac+'22' } },
-
-        // Counter pill
-        e('div', { className:'slide-text', style:{ marginBottom:8 } },
-          e('span', { style:H({ display:'inline-block', background:ac, color:ac===B.yellow?B.dark:B.white, borderRadius:999, padding:'2px 13px', fontSize:12 }) },
-            (idx+1) + ' / ' + total
-          )
+    ce('div', { className:'slide-area' },
+      isQuiz ? ce(Quiz) :
+      ce('div', { className:'slide-card', style:{ border:'2px solid '+ac+'33' } },
+        ce('div', { className:'slide-text', style:{ marginBottom:8 } },
+          ce('span', { style:H({ display:'inline-block', background:ac, color: ac==='#ffc629'?'#24272a':'#fff', borderRadius:999, padding:'2px 13px', fontSize:12 }) },
+            (idx+1) + ' / ' + total)
         ),
-
-        // Title
-        e('div', { className:'slide-text', style:H({ fontSize:20, lineHeight:1.25, marginBottom:6, color:B.dark }) }, slide.title),
-
-        // Image
+        ce('div', { className:'slide-text', style:H({ fontSize:20, lineHeight:1.25, marginBottom:6, color:'#24272a' }) }, slide.title),
         isWelcome
-          ? e('img', { src:'img-badge.png', alt:'Feline Friend Badge', className:'badge-img', onError:function(ev){ ev.target.style.display='none'; } })
-          : imgSrc
-            ? e('img', { src:imgSrc, alt:slide.title, className:'slide-img', onError:function(ev){ ev.target.style.display='none'; } })
-            : null,
-
-        // Body
-        e('div', { className:'slide-text', style:T({ color:'#374151', lineHeight:1.7, marginBottom:6, whiteSpace:'pre-line' }) }, slide.body),
-
-        // Charts
-        slide.chart === 'where' && e(ChartWhere),
-        slide.chart === 'progress' && e(ChartProgress),
-
-        // Callout
-        slide.callout && e('div', { className:'slide-callout', style:T({ background:slide.bg, borderRadius:10, padding:'10px 13px', borderLeft:'4px solid '+ac, color:B.dark, marginTop:8 }) }, slide.callout)
+          ? ce('img', { src:'img-badge.png', alt:'Feline Friend Badge', className:'badge-img', onError:function(ev) { ev.target.style.display='none'; } })
+          : (imgSrc ? ce('img', { src:imgSrc, alt:slide.title, className:'slide-img', onError:function(ev) { ev.target.style.display='none'; } }) : null),
+        ce('div', { className:'slide-text', style:T({ color:'#374151', lineHeight:1.7, marginBottom:6, whiteSpace:'pre-line' }) }, slide.body),
+        slide.chart === 'where' ? ce(ChartWhere) : (slide.chart === 'progress' ? ce(ChartProgress) : null),
+        slide.callout ? ce('div', { className:'slide-callout', style:T({ background:slide.bg, borderRadius:10, padding:'10px 13px', borderLeft:'4px solid '+ac, color:'#24272a', marginTop:8 }) }, slide.callout) : null
       )
     ),
 
-    // Nav bar
-    !isQuiz && e('div', { className:'nav-bar' },
-
-      // Slide Back / dots / Next
-      e('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%' } },
-        e('button', {
-          onClick:function(){ go(-1); }, disabled:idx===0,
-          style:H({ padding:'8px 16px', borderRadius:999, border:'none', background:idx===0?'#e5e7eb':ac, color:idx===0?'#9ca3af':ac===B.yellow?B.dark:B.white, fontSize:13 })
-        }, '← Back'),
-        e('div', { style:{ display:'flex', gap:5, flexWrap:'wrap', justifyContent:'center', maxWidth:160 } },
+    !isQuiz && ce('div', { className:'nav-bar' },
+      ce('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%' } },
+        ce('button', { onClick:function() { go(-1); }, disabled:idx===0,
+          style:H({ padding:'8px 16px', borderRadius:999, border:'none', background:idx===0?'#e5e7eb':ac, color:idx===0?'#9ca3af': ac==='#ffc629'?'#24272a':'#fff', fontSize:13 })
+        }, 'Back'),
+        ce('div', { style:{ display:'flex', gap:5, flexWrap:'wrap', justifyContent:'center', maxWidth:160 } },
           slides.map(function(_, i) {
-            return e('div', {
-              key:i,
-              className:'dot ' + (i===idx ? 'active' : 'inactive'),
-              style:{ background: i===idx ? ac : '#d1d5db' },
-              onClick:function(){ setDot(i); }
+            return ce('div', { key:i, className:'dot', onClick:function() { setDot(i); },
+              style:{ width: i===idx ? 16 : 7, background: i===idx ? ac : '#d1d5db' }
             });
           })
         ),
-        e('button', {
-          onClick:function(){ go(1); }, disabled:idx===total-1,
-          style:H({ padding:'8px 16px', borderRadius:999, border:'none', background:idx===total-1?'#e5e7eb':ac, color:idx===total-1?'#9ca3af':ac===B.yellow?B.dark:B.white, fontSize:13 })
-        }, 'Next →')
+        ce('button', { onClick:function() { go(1); }, disabled:idx===total-1,
+          style:H({ padding:'8px 16px', borderRadius:999, border:'none', background:idx===total-1?'#e5e7eb':ac, color:idx===total-1?'#9ca3af': ac==='#ffc629'?'#24272a':'#fff', fontSize:13 })
+        }, 'Next')
       ),
-
-      // Section Prev / counter / Next
-      e('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%', borderTop:'1px solid #e5e7eb', paddingTop:7 } },
-        e('button', {
-          onClick:function(){ if(prevTab) switchTab(prevTab.id); }, disabled:!prevTab,
-          style:H({ padding:'7px 12px', borderRadius:999, border:'1.5px solid '+(prevTab?B.dark:'#e5e7eb'), background:'transparent', color:prevTab?B.dark:'#d1d5db', whiteSpace:'nowrap', fontSize:11 })
-        }, prevTab ? '← ' + prevTab.emoji + ' ' + prevTab.label : ''),
-        e('span', { style:T({ fontSize:11, color:'#9ca3af', textAlign:'center' }) },
-          'Section ' + (tabIdx+1) + ' of ' + TABS.length
-        ),
-        e('button', {
-          onClick:function(){ if(nextTab) switchTab(nextTab.id); }, disabled:!nextTab,
-          style:H({ padding:'7px 12px', borderRadius:999, border:'1.5px solid '+(nextTab?B.dark:'#e5e7eb'), background:'transparent', color:nextTab?B.dark:'#d1d5db', whiteSpace:'nowrap', fontSize:11 })
-        }, nextTab ? nextTab.emoji + ' ' + nextTab.label + ' →' : '')
+      ce('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', width:'100%', borderTop:'1px solid #e5e7eb', paddingTop:7 } },
+        ce('button', { onClick:function() { if(prevTab) switchTab(prevTab.id); }, disabled:!prevTab,
+          style:H({ padding:'7px 12px', borderRadius:999, border:'1.5px solid '+(prevTab?'#24272a':'#e5e7eb'), background:'transparent', color:prevTab?'#24272a':'#d1d5db', whiteSpace:'nowrap', fontSize:11 })
+        }, prevTab ? prevTab.emoji + ' ' + prevTab.label : ''),
+        ce('span', { style:T({ fontSize:11, color:'#9ca3af', textAlign:'center' }) }, 'Section ' + (tabIdx+1) + ' of ' + TABS.length),
+        ce('button', { onClick:function() { if(nextTab) switchTab(nextTab.id); }, disabled:!nextTab,
+          style:H({ padding:'7px 12px', borderRadius:999, border:'1.5px solid '+(nextTab?'#24272a':'#e5e7eb'), background:'transparent', color:nextTab?'#24272a':'#d1d5db', whiteSpace:'nowrap', fontSize:11 })
+        }, nextTab ? nextTab.emoji + ' ' + nextTab.label : '')
       )
     ),
 
-    e('div', { className:'footer' }, 'Data: ASPCA & Shelter Animals Count (2023–24) • Felius Rescue Rangers © 2026')
+    ce('div', { className:'footer' }, 'Data: ASPCA and Shelter Animals Count 2023-24 - Felius Rescue Rangers 2026')
   );
 }
 
-var root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(e(App));
+ReactDOM.createRoot(document.getElementById('root')).render(ce(App));
+})();
 </script>
 </body>
 </html>
