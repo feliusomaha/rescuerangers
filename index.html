@@ -11,15 +11,15 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body, #root {
-      width: 100%;
-      min-height: 100%;
+      width: 100%; height: 100%;
+      overflow: hidden;
       background: #f7f4f2;
       font-family: 'Nunito', sans-serif;
     }
     .app {
       display: flex;
       flex-direction: column;
-      min-height: 100%;
+      height: 100%;
       max-width: 680px;
       margin: 0 auto;
     }
@@ -31,52 +31,66 @@
       padding: 8px 10px 6px;
       justify-content: center;
     }
+    /* Slide area fills remaining height */
     .slide-area {
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       padding: 0 12px;
+      overflow: hidden;
     }
+    /* Card fills slide-area vertically */
     .slide-card {
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       background: #fff;
       border-radius: 16px;
-      padding: 16px;
+      padding: 14px 16px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+      overflow: hidden;
     }
-    .slide-text { flex-shrink: 0; }
+    .slide-fixed { flex-shrink: 0; }
+    /* Image fills leftover space in the card */
     .slide-img {
+      flex: 1;
+      min-height: 80px;
       width: 100%;
-      min-height: 150px;
-      height: clamp(150px, 40vw, 600px);
       object-fit: cover;
       object-position: center 30%;
       border-radius: 10px;
-      margin: 10px 0;
+      margin: 8px 0;
       display: block;
     }
     .badge-img {
-      max-width: min(220px, 50vw);
-      max-height: 260px;
+      flex-shrink: 0;
+      max-width: min(180px, 40vw);
+      max-height: 22vh;
       object-fit: contain;
       display: block;
-      margin: 12px auto;
+      margin: 8px auto;
     }
-    .slide-callout { flex-shrink: 0; }
     .nav-bar {
+      flex-shrink: 0;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      padding: 10px 12px 12px;
+      gap: 6px;
+      padding: 8px 12px 10px;
       background: #f7f4f2;
     }
     .footer {
+      flex-shrink: 0;
       text-align: center;
-      padding: 4px 0 10px;
-      font-size: 11px;
+      padding: 2px 0 6px;
+      font-size: 10px;
       color: #9ca3af;
     }
     button { font-family: 'Nunito', sans-serif; cursor: pointer; }
+
+    /* Bold bullet titles */
+    .body-text b { font-weight: 800; }
   </style>
 </head>
 <body>
@@ -88,62 +102,87 @@ const B = {
   orange:"#ff5c35", pink:"#f5acb8", cream:"#fceae6",
   blue:"#8dc6e8", yellow:"#ffc629", dark:"#24272a", white:"#ffffff",
 };
-const H = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:20, ...x });
-const T = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:400, fontSize:16, ...x });
+const H = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:800, fontSize:14, ...x });
+const T = (x={}) => ({ fontFamily:"'Nunito',sans-serif", fontWeight:400, fontSize:14, ...x });
 
 const IMGS = {
-  "welcome":    "img-badge.png",
-  "intro-1":    "img-why-do-cats-need-help.jpg",
-  "intro-2":    "img-what-is-cat-rescue.jpg",
-  "intro-3":    "img-the-good-news.jpg",
-  "facts-1":    "img-how-many-cats-need-help.jpg",
-  "facts-2":    "img-where-do-they-go.jpg",
-  "facts-3":    "img-the-numbers-at-a-glance.jpg",
-  "facts-4":    "img-progress-over-time.jpg",
-  "journey-1":  "img-stray-or-surrendered.jpg",
-  "journey-2":  "img-rescued-and-intake.jpg",
-  "journey-3":  "img-vet-care-and-spay-neuter.jpg",
-  "journey-4":  "img-adoption-listing.jpg",
+  "welcome":   "img-badge.png",
+  "intro-1":   "img-why-do-cats-need-help.jpg",
+  "intro-2":   "img-what-is-cat-rescue.jpg",
+  "intro-3":   "img-the-good-news.jpg",
+  "facts-1":   "img-how-many-cats-need-help.jpg",
+  "facts-2":   "img-where-do-they-go.jpg",
+  "facts-3":   "img-the-numbers-at-a-glance.jpg",
+  "facts-4":   "img-progress-over-time.jpg",
+  "journey-1": "img-stray-or-surrendered.jpg",
+  "journey-2": "img-rescued-and-intake.jpg",
+  "journey-3": "img-vet-care-and-spay-neuter.jpg",
+  "journey-4": "img-adoption-listing.jpg",
 };
 
-function Bar({ label, value, max, color }) {
-  const pct = Math.round((value / max) * 100);
+// Render body text — lines starting with emoji+bold label get bolded label
+function BodyText({ text, style }) {
+  const lines = text.split('\n');
   return (
-    <div style={{ marginBottom:8 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", fontSize:13, marginBottom:3, ...T() }}>
-        <span>{label}</span>
-        <span style={{ color:"#6b7280" }}>{value.toLocaleString()} ({pct}%)</span>
-      </div>
-      <div style={{ background:"#e5e7eb", borderRadius:999, height:18 }}>
-        <div style={{ width:`${pct}%`, background:color, height:"100%", borderRadius:999 }}/>
-      </div>
+    <div style={style}>
+      {lines.map((line, i) => {
+        // Match lines like "🏠 Bold Title: rest" or "🏠 Bold Title — rest"
+        const m = line.match(/^([\u{1F000}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}✂️🌍💊💉🏥💻🌟🤝📱📚🏗️📣🏡🔢😿💛💔❤️🚗😿🏠🩺📋💰📸]*\s*)(\*\*(.+?)\*\*|([^:\—–-]+?))([:\—–-]\s*)(.*)/us);
+        if (line.trim() === '') return <div key={i} style={{ height:6 }}/>;
+        // Detect lines with a leading emoji followed by bold-worthy label
+        const boldMatch = line.match(/^([\u{1F000}-\u{1FFFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}✂️🌍💊💉🏥💻🌟🤝📱📚🏗️📣📋💰📸❤️🚗😿🏠🩺💛💔🔢]*\s*)([^:]+)(:)(.*)/su);
+        if (boldMatch) {
+          return (
+            <div key={i} style={{ marginBottom:3 }}>
+              <span style={{ fontWeight:800 }}>{boldMatch[1]}{boldMatch[2]}{boldMatch[3]}</span>
+              <span>{boldMatch[4]}</span>
+            </div>
+          );
+        }
+        return <div key={i} style={{ marginBottom:3 }}>{line}</div>;
+      })}
     </div>
   );
 }
 
-function SlideVisual({ slideId }) {
-  if (slideId === "facts-2") return (
-    <div style={{ marginTop:10, flexShrink:0 }}>
-      <Bar label="🏠 Adopted" value={2100000} max={3200000} color={B.orange}/>
-      <Bar label="🔄 Returned to owners" value={570000} max={3200000} color={B.blue}/>
-      <Bar label="😿 Euthanized" value={530000} max={3200000} color={B.pink}/>
-    </div>
-  );
-  if (slideId === "facts-4") return (
-    <div style={{ marginTop:10, flexShrink:0 }}>
-      {[{y:"1970s",v:85,c:B.orange},{y:"2000s",v:45,c:B.blue},{y:"Today",v:17,c:B.yellow}].map(d=>(
-        <div key={d.y} style={{ marginBottom:8 }}>
-          <div style={{ fontSize:13, marginBottom:3, ...H() }}>{d.y} — {d.v}% euthanized</div>
-          <div style={{ background:"#e5e7eb", borderRadius:999, height:18 }}>
-            <div style={{ width:`${d.v}%`, background:d.c, height:"100%", borderRadius:999, display:"flex", alignItems:"center", paddingLeft:8 }}>
-              <span style={{ color:d.c===B.yellow?B.dark:"#fff", fontSize:11, ...H() }}>{d.v}%</span>
+// Timeline component for "Proof That Rescue Work Works"
+function Timeline() {
+  const steps = [
+    { year:"1970s", pct:85, label:"85% euthanized", color:B.orange },
+    { year:"2000s", pct:45, label:"45% euthanized", color:B.blue },
+    { year:"Today", pct:17, label:"17% euthanized", color:"#22c55e" },
+  ];
+  return (
+    <div style={{ marginTop:10, flexShrink:0, padding:"0 4px" }}>
+      {/* Track */}
+      <div style={{ position:"relative", display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+        {/* Line connecting dots */}
+        <div style={{ position:"absolute", left:"10%", right:"10%", top:"50%", transform:"translateY(-50%)", height:4, background:"#e5e7eb", borderRadius:999, zIndex:0 }}/>
+        <div style={{ position:"absolute", left:"10%", right:"10%", top:"50%", transform:"translateY(-50%)", height:4, zIndex:0, overflow:"hidden", borderRadius:999 }}>
+          <div style={{ width:"100%", height:"100%", background:`linear-gradient(to right, ${B.orange}, ${B.blue}, #22c55e)` }}/>
+        </div>
+        {steps.map((s,i) => (
+          <div key={i} style={{ display:"flex", flexDirection:"column", alignItems:"center", zIndex:1, flex:1 }}>
+            <div style={{ width:36, height:36, borderRadius:"50%", background:s.color, border:"3px solid #fff", boxShadow:"0 2px 6px rgba(0,0,0,0.15)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+              <span style={{ color:"#fff", fontSize:11, fontWeight:800, fontFamily:"'Nunito',sans-serif" }}>{s.pct}%</span>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      {/* Labels below */}
+      <div style={{ display:"flex", justifyContent:"space-between" }}>
+        {steps.map((s,i) => (
+          <div key={i} style={{ flex:1, textAlign:"center" }}>
+            <div style={{ fontWeight:800, fontSize:13, color:s.color, fontFamily:"'Nunito',sans-serif" }}>{s.year}</div>
+            <div style={{ fontSize:11, color:"#6b7280", fontFamily:"'Nunito',sans-serif" }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ textAlign:"center", marginTop:8, fontSize:12, color:B.dark, fontFamily:"'Nunito',sans-serif", fontWeight:800 }}>
+        📉 Over 75% reduction in euthanasia in 50 years
+      </div>
     </div>
   );
-  return null;
 }
 
 const TABS = [
@@ -158,58 +197,55 @@ const SLIDES = {
   welcome:[{
     id:"welcome", color:B.orange, bg:B.cream,
     title:"Welcome, Rescue Ranger!",
-    body:"In this module you will learn:\n\n🐱  Why millions of cats need help each year\n📊  What the numbers tell us about rescue progress\n🏠  How a cat's journey from stray to forever home works\n🦸  Who the real heroes of rescue are\n⭐  How YOU can make a difference right now\n\nComplete all sections and the quiz to earn your official Feline Friend badge!",
+    body:"In this module you will learn:\n\n🐱 Why millions of cats need help each year\n📊 What the numbers tell us about rescue progress\n🐈 How a cat rescue functions\n🏠 How a cat's journey from stray to forever home works\n\nComplete all sections and the quiz to earn your official Feline Friend badge!",
     callout:"🐾 Ready? Tap Intro above to start your journey!",
   }],
-
   intro:[
     {
       id:"intro-1", color:B.orange, bg:B.cream,
       title:"Why Do Cats Need Help?",
-      body:"Every year, millions of cats across the U.S. end up without a home. There are actually a few different ways a cat might find itself without a family:\n\n🏃 Lost Cats: Sometimes a pet cat sneaks out an open door or wanders too far and can't find their way back. This is why microchipping your pets is so important.\n\n🌿 Street-Born Cats: Some cats have never had a home at all. Born outside to a mom also living on the streets, these community cats are also called feral cats.\n\n💔 Surrendered Cats: Sometimes a family faces hard times — moving somewhere that doesn't allow pets, allergies, or financial hardship. Surrendering a cat to a rescue gives them a chance at a new loving home.\n\nSo what happens next? That's where rescues like Felius Cat Cafe & Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats with a 100% live-release rate.",
+      body:"Every year, millions of cats across the U.S. end up without a home. There are a few different ways a cat might find itself without a family:\n\n🏃 Lost Cats: Sometimes a pet cat sneaks out an open door or wanders too far and can't find their way back. This is why microchipping your pets is so important.\n\n🌿 Street-Born Cats: Some cats have never had a home at all. Born outside to a mom also living on the streets, these community cats are also called feral cats.\n\n💔 Surrendered Cats: Sometimes a family faces hard times — moving somewhere that doesn't allow pets, allergies, or financial hardship. Surrendering a cat to a rescue gives them a chance at a new loving home.\n\nThat's where rescues like Felius Cat Cafe & Rescue in Omaha come in! Since 2018, Felius has rescued and found loving homes for over 1,700 cats with a 100% live-release rate.",
       callout:"💬 Have you ever seen a stray cat in your neighborhood? Do you think it was lost, born outside, or given up by a family?",
     },
     {
       id:"intro-2", color:B.orange, bg:B.cream,
       title:"What Is Cat Rescue?",
-      body:"Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home. It's a whole team effort:\n\n🏠 Shelters and Rescues: Organizations like Felius Cat Cafe & Rescue give cats a safe, warm space to eat, rest, play, and get the medical care they need.\n\n🤝 Volunteers: Everyday people who cuddle and socialize cats, clean, organize supplies, raise money, or spread the word.\n\n🩺 Veterinarians: Like doctors for animals! Many vets donate their time or offer special pricing to help rescues care for more cats.\n\n🏡 Fosters: People who open their homes to cats who need extra care or a quieter place to wait for their forever family.\n\n📣 Everyday Advocates: You don't have to work at a shelter to make a difference. Sharing a cat's photo, telling a friend about adoption, or just being kind to animals all count!",
+      body:"Cat rescue is the amazing work done by shelters, volunteers, and everyday people like YOU to give cats a second chance at a happy, loving home. It's a whole team effort:\n\n🏠 Shelters and Rescues: Organizations like Felius Cat Cafe & Rescue give cats a safe, warm space to eat, rest, play, and get the medical care they need.\n\n🤝 Volunteers: Everyday people who cuddle and socialize cats, clean, organize supplies, raise money, or spread the word.\n\n🩺 Veterinarians: Like doctors for animals! Many vets donate their time or offer special pricing to help rescues care for more cats.\n\n🏡 Fosters: People who open their homes to cats who need extra care or a quieter place to wait for their forever family.\n\n📣 Everyday Advocates: Sharing a cat's photo, telling a friend about adoption, or just being kind to animals all count!",
       callout:"💬 If you could pick one way to help rescue cats, what would it be?",
     },
     {
       id:"intro-3", color:B.orange, bg:B.cream,
       title:"The Good News",
-      body:"Here's something that might surprise you: things are actually getting a LOT better for cats in the U.S., and it's all because of people who decided to care.\n\nThanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%!\n\n🏗️ More Rescues, More Options: Communities built networks of rescues, fosters, and advocates all working together.\n\n📱 Social Media Changed Everything: Cat photos on the internet have genuinely saved lives by connecting cats with families they might never have met.\n\n📚 Education Made a Difference: The more people learned about rescue and responsible pet ownership, the fewer cats ended up without homes.\n\n🌟 Places Like Felius Lead the Way: Since 2018, Felius has found loving homes for over 1,700 cats with a 98% live-release rate.",
-      callout:"💬 What do you think is possible for cats in the next 50 years? What kind of world would you want to create for them?",
+      body:"Things are actually getting a LOT better for cats in the U.S., and it's all because of people who decided to care.\n\nThanks to rescue efforts over the past 50 years, the number of cats euthanized in shelters has dropped by over 75%!\n\n🏗️ More Rescues, More Options: Communities built networks of rescues, fosters, and advocates all working together.\n\n📱 Social Media Changed Everything: Cat photos on the internet have genuinely saved lives by connecting cats with families they might never have met.\n\n📚 Education Made a Difference: The more people learned about rescue and responsible pet ownership, the fewer cats ended up without homes.\n\n🌟 Places Like Felius Lead the Way: Since 2018, Felius has found loving homes for over 1,700 cats with a 98% live-release rate.",
+      callout:"💬 What do you think is possible for cats in the next 50 years?",
     },
   ],
-
   facts:[
     {
       id:"facts-1", color:B.blue, bg:"#eaf5fc",
       title:"How Many Cats Need Help?",
-      body:"Numbers can tell a really powerful story. Let's look at what's happening for shelter cats across the U.S. every single year:\n\n🏠 3.2 Million Cats Enter U.S. Shelters Every Year. That's more than the entire population of Chicago! These are lost cats, stray cats, surrendered cats, and kittens born without a home — all looking for a safe place to land.\n\n🧮 Roughly 65% of shelter cats find a home, and that number keeps growing! With more people learning about adoption, fostering, and rescue every year, that percentage is climbing.",
+      body:"Numbers can tell a really powerful story. Let's look at what's happening for shelter cats across the U.S. every single year:\n\n🏠 3.2 Million Cats Enter U.S. Shelters Every Year: That's more than the entire population of Chicago! These are lost cats, stray cats, surrendered cats, and kittens born without a home — all looking for a safe place to land.\n\n🧮 Roughly 65% of shelter cats find a home, and that number keeps growing! With more people learning about adoption, fostering, and rescue every year, that percentage is climbing.",
       callout:"💬 By the time you finish this card, another cat will have entered a shelter. That's one cat every 10 seconds!",
     },
     {
       id:"facts-2", color:B.blue, bg:"#eaf5fc",
       title:"Where Do They Go?",
-      body:"Here's what happens to the 3.2 million cats who enter U.S. shelters each year:\n\n💛 2.1 Million Are Adopted — over two million cats find loving families every year!\n\n🏡 570,000 Are Reunited With Their Owners — lost pets found and brought back home. This is why microchipping and ID tags are so important!\n\n💔 530,000 Are Still Euthanized — usually because there aren't enough homes, resources, or space. It's a sad reality, but it's also why rescue work matters so much — and why that number has been dropping steadily for decades.",
+      body:"Here's what happens to the 3.2 million cats who enter U.S. shelters each year:\n\n💛 2.1 Million Are Adopted: Over two million cats find loving families every year!\n\n🏡 570,000 Are Reunited With Their Owners: Lost pets found and brought back home. This is why microchipping and ID tags are so important!\n\n💔 530,000 Are Still Euthanized: Usually because there aren't enough homes, resources, or space. It's a sad reality — but why rescue work matters so much, and why that number has been dropping steadily for decades.",
       callout:"💬 If you could change one of these numbers, which would it be and how do you think we could get there?",
     },
     {
       id:"facts-3", color:B.blue, bg:"#eaf5fc",
       title:"The Overpopulation Problem",
-      body:"Here's a math problem that might blow your mind. One unspayed female cat and her descendants can produce up to 420,000 cats over just 7 years. That's not a typo — nearly half a million cats from one single cat!\n\n🌍 Why This Is a Problem: When there are more cats than homes, shelters fill up fast. Cats end up on the streets facing cold winters, illness, and hunger.\n\n✂️ The Solution — Spay and Neuter: Safe, simple surgeries that prevent cats from having kittens. Many rescues also use TNR (Trap, Neuter, Return) to humanely reduce outdoor cat populations.\n\n🔢 The Math: Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each. Just from one cat: 3 litters × 4 kittens × 2 years = 24 kittens!",
+      body:"One unspayed female cat and her descendants can produce up to 420,000 cats over just 7 years. That's not a typo — nearly half a million cats from one single cat!\n\n🌍 Why This Is a Problem: When there are more cats than homes, shelters fill up fast. Cats end up on the streets facing cold winters, illness, and hunger.\n\n✂️ The Solution — Spay and Neuter: Safe, simple surgeries that prevent cats from having kittens. Many rescues also use TNR (Trap, Neuter, Return) to humanely reduce outdoor cat populations.\n\n🔢 The Math: 3 litters per year × 4 kittens × 2 years = 24 kittens from just one cat!",
       callout:"💬 Why do you think spay and neuter programs are so important? How could communities make these programs easier to access?",
     },
     {
       id:"facts-4", color:B.blue, bg:"#eaf5fc",
       title:"Proof That Rescue Work Works",
-      body:"The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — and it didn't happen by accident. It happened because people cared enough to take action.\n\nIn the 1970s, an estimated 20 million cats and dogs were euthanized every year. Today that number is a fraction of what it once was. Here's what changed:\n\n🏠 More shelters and rescues opened, building entire networks of people working together.\n✂️ Spay and neuter programs made surgeries affordable, meaning fewer unplanned litters.\n💻 Online adoption listings let a cat's photo reach thousands of potential families in one afternoon.\n🏡 Foster networks grew, giving cats warm places to wait while freeing up shelter space.\n🌟 And millions of everyday people — like you — decided that cats' lives matter.",
+      body:"The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — because people cared enough to take action.\n\n🏠 More shelters and rescues opened, building entire networks of people working together.\n✂️ Spay and neuter programs made surgeries affordable, meaning fewer unplanned litters.\n💻 Online adoption listings let a cat's photo reach thousands of potential families in one afternoon.\n🏡 Foster networks grew, giving cats warm places to wait while freeing up shelter space.\n🌟 And millions of everyday people decided that cats' lives matter.",
       callout:"💬 Which change do you think had the biggest impact? What do you think the next big breakthrough for rescue could be?",
     },
   ],
-
   journey:[
     {
       id:"journey-1", color:"#22c55e", bg:"#f0fdf4",
@@ -220,65 +256,30 @@ const SLIDES = {
     {
       id:"journey-2", color:"#22c55e", bg:"#f0fdf4",
       title:"Step 2: Evaluation and Foster Placement",
-      body:"Once a cat arrives, the rescue team gets to work figuring out exactly what that cat needs and where they will thrive best.\n\n🩺 Health Check: Every cat gets a full health check covering weight, age, temperature, and overall condition. Vaccinations are given, fleas or parasites are treated, and injuries are addressed. They also get microchipped so they can always be identified.\n\n🏡 Foster Placement: Most cats are placed in a foster home before entering the shelter to make sure all vetting requirements are met. A few weeks in a loving home can transform a scared cat into a confident, adoptable one through a process called socialization.\n\n📋 Building a Profile: Everything learned about the cat is recorded — health history and personality. Is this cat shy or social? Do they like other cats? Playful or a lap cat? All of these details help find their perfect family.",
+      body:"Once a cat arrives, the rescue team figures out exactly what that cat needs and where they will thrive best.\n\n🩺 Health Check: Every cat gets a full health check covering weight, age, temperature, and overall condition. Vaccinations are given, fleas or parasites are treated, and injuries are addressed. They also get microchipped.\n\n🏡 Foster Placement: Most cats are placed in a foster home before entering the shelter to make sure all vetting requirements are met. A few weeks in a loving home can transform a scared cat into a confident, adoptable one through socialization.\n\n📋 Building a Profile: Everything learned about the cat is recorded — health history and personality. Shy or social? Likes other cats? Playful or a lap cat? All of these details help find their perfect family.",
       callout:"💬 Why do you think it's important to understand a cat's personality? How might a shy cat's needs differ from a super social cat's?",
     },
     {
       id:"journey-3", color:"#22c55e", bg:"#f0fdf4",
       title:"Step 3: Vet Care",
-      body:"Before any cat is made available for adoption, they receive comprehensive medical care to make sure they are healthy, safe, and ready for their new home. At Felius, all cats are completely vetted before entering the playroom.\n\n💉 Full Medical Treatment: Every cat is spayed or neutered, dewormed, microchipped, and vaccinated before they set a paw in the playroom.\n\n🏥 Reducing the Spread of Illness: Cats that first enter rescue can sometimes be sick without anyone knowing it yet. Foster placement helps prevent the spread of illness while giving them a safe, quiet space to heal.\n\n💊 Ongoing Preventative Care: Keeping cats healthy doesn't stop after that first vet visit. Cats stay up to date on vaccinations and preventative treatments throughout their time in foster care.",
+      body:"Before any cat is made available for adoption, they receive comprehensive medical care. At Felius, all cats are completely vetted before entering the playroom.\n\n💉 Full Medical Treatment: Every cat is spayed or neutered, dewormed, microchipped, and vaccinated before they set a paw in the playroom.\n\n🏥 Reducing the Spread of Illness: Cats that first enter rescue can sometimes be sick without anyone knowing it yet. Foster placement helps prevent the spread of illness while giving them a safe, quiet space to heal.\n\n💊 Ongoing Preventative Care: Keeping cats healthy doesn't stop after that first vet visit. Cats stay up to date on vaccinations and preventative treatments throughout foster care.",
       callout:"💡 Did you know? It costs an average of $84 per month to care for each individual rescue cat at Felius! That's why donations, adoption fees, and community support are so important.",
     },
     {
       id:"journey-4", color:"#22c55e", bg:"#f0fdf4",
       title:"Step 4: Adoption",
-      body:"Finding a cat a loving home isn't just about posting a cute photo and hoping for the best. There's a thoughtful process designed with one goal: making sure every cat lands somewhere safe, happy, and permanent.\n\n📸 It Starts With a Great Profile: Cute photos and a fun bio are posted online so potential adopters can get to know a cat before they even walk through the door. At Felius, adopters can meet cats directly in the playroom!\n\n📋 The Application Process: Adopters fill out an application so the rescue can learn about their home, lifestyle, and experience with cats — making sure every match is the right one.\n\n💰 Why There's an Adoption Fee: By the time a cat is ready for adoption, the rescue has already covered spay/neuter surgery, vaccinations, microchipping, and medical care. Adoption fees help cover those costs so the rescue can turn around and help the next cat in need.",
+      body:"Finding a cat a loving home isn't just about posting a cute photo. There's a thoughtful process designed with one goal: making sure every cat lands somewhere safe, happy, and permanent.\n\n📸 It Starts With a Great Profile: Cute photos and a fun bio are posted online so potential adopters can get to know a cat. At Felius, adopters can meet cats directly in the playroom!\n\n📋 The Application Process: Adopters fill out an application so the rescue can learn about their home, lifestyle, and experience with cats — making sure every match is the right one.\n\n💰 Why There's an Adoption Fee: By adoption time, the rescue has already covered spay/neuter surgery, vaccinations, microchipping, and medical care. Adoption fees help cover those costs so the rescue can help the next cat in need.",
       callout:"💬 If you were filling out an adoption application, what would be the most important question to ask a potential adopter?",
     },
   ],
 };
 
 const QS = [
-  {
-    q:"What is a foster home for a cat?",
-    opts:[
-      "A permanent forever home",
-      "A temporary home where a cat waits for adoption",
-      "A veterinary clinic",
-      "A pet store"
-    ],
-    ans:1,
-    fact:"Foster homes are temporary homes where cats wait for their forever family. A few weeks in a loving foster home can transform a scared cat into a confident, adoptable one!"
-  },
-  {
-    q:"How many cats enter U.S. shelters every year?",
-    opts:["About 500,000","About 1 million","About 3.2 million","About 10 million"],
-    ans:2,
-    fact:"Roughly 3.2 million cats enter U.S. shelters each year — that's one cat every 10 seconds!"
-  },
-  {
-    q:"At what age can cats start reproducing?",
-    opts:["12 months old","8 months old","4 months old","2 years old"],
-    ans:2,
-    fact:"Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each — which is why spay and neuter programs are so important!"
-  },
-  {
-    q:"By how much has the shelter euthanasia rate dropped over the last 50 years?",
-    opts:["About 25%","About 50%","About 75%","It hasn't changed"],
-    ans:2,
-    fact:"The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — proof that rescue work really works!"
-  },
-  {
-    q:"Why is vetting cats so important before adoption?",
-    opts:[
-      "It makes cats look better in photos",
-      "It ensures cats are spayed/neutered, vaccinated, and healthy before going home",
-      "It is required by law in all states",
-      "It helps cats learn their name"
-    ],
-    ans:1,
-    fact:"Before adoption, every cat at Felius is spayed or neutered, dewormed, microchipped, and vaccinated — making sure they are healthy, safe, and ready for their new home!"
-  },
+  { q:"What is a foster home for a cat?", opts:["A permanent forever home","A temporary home where a cat waits for adoption","A veterinary clinic","A pet store"], ans:1, fact:"Foster homes are temporary homes where cats wait for their forever family. A few weeks in a loving foster home can transform a scared cat into a confident, adoptable one!" },
+  { q:"How many cats enter U.S. shelters every year?", opts:["About 500,000","About 1 million","About 3.2 million","About 10 million"], ans:2, fact:"Roughly 3.2 million cats enter U.S. shelters each year — that's one cat every 10 seconds!" },
+  { q:"At what age can cats start reproducing?", opts:["12 months old","8 months old","4 months old","2 years old"], ans:2, fact:"Cats can start having kittens as young as 4 months old, with up to 3 litters per year and an average of 4 kittens each — which is why spay and neuter programs are so important!" },
+  { q:"By how much has the shelter euthanasia rate dropped over the last 50 years?", opts:["About 25%","About 50%","About 75%","It hasn't changed"], ans:2, fact:"The euthanasia rate in U.S. shelters has dropped by more than 75% over the last 50 years — proof that rescue work really works!" },
+  { q:"Why is vetting cats so important before adoption?", opts:["It makes cats look better in photos","It ensures cats are spayed/neutered, vaccinated, and healthy before going home","It is required by law in all states","It helps cats learn their name"], ans:1, fact:"Before adoption, every cat at Felius is spayed or neutered, dewormed, microchipped, and vaccinated — making sure they are healthy, safe, and ready for their new home!" },
 ];
 
 function Quiz() {
@@ -286,50 +287,50 @@ function Quiz() {
   const [sel,setSel]=useState(null);
   const [score,setScore]=useState(0);
   const [done,setDone]=useState(false);
-  const pick=(i)=>{ if(sel!==null)return; setSel(i); if(i===QS[qi].ans)setScore(s=>s+1); };
-  const next=()=>{ if(qi+1>=QS.length)setDone(true); else{setQi(q=>q+1);setSel(null);} };
+  const pick=(i)=>{if(sel!==null)return;setSel(i);if(i===QS[qi].ans)setScore(s=>s+1);};
+  const next=()=>{if(qi+1>=QS.length)setDone(true);else{setQi(q=>q+1);setSel(null);}};
   const reset=()=>{setQi(0);setSel(null);setScore(0);setDone(false);};
 
   if(done) return (
-    <div style={{ background:B.white, borderRadius:16, padding:"24px 20px", textAlign:"center", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",background:B.white,borderRadius:16,padding:"20px 16px",boxShadow:"0 4px 16px rgba(0,0,0,0.07)",textAlign:"center"}}>
       {score===QS.length
-        ? <img src="img-badge.png" alt="Feline Friend Badge" style={{ width:140, height:140, objectFit:"contain", display:"block", margin:"0 auto" }} onError={e=>e.target.style.display="none"}/>
-        : <div style={{ fontSize:60 }}>{score>=3?"⭐":"💪"}</div>
+        ?<img src="img-badge.png" alt="Feline Friend Badge" style={{width:120,height:120,objectFit:"contain",display:"block",margin:"0 auto"}} onError={e=>e.target.style.display="none"}/>
+        :<div style={{fontSize:56}}>{score>=3?"⭐":"💪"}</div>
       }
-      <div style={{ fontSize:26, color:B.orange, margin:"12px 0 6px", ...H() }}>{score} / {QS.length}</div>
-      <div style={{ color:"#4b5563", marginBottom:score===QS.length?6:16, ...T() }}>
+      <div style={{fontSize:24,color:B.orange,margin:"10px 0 5px",...H()}}>{score} / {QS.length}</div>
+      <div style={{color:"#4b5563",marginBottom:score===QS.length?4:14,...T()}}>
         {score===QS.length?"Perfect score! You have earned your Feline Friend badge!":score>=3?"Great work — keep learning!":"Keep going — every fact helps save a cat!"}
       </div>
-      {score===QS.length&&<div style={{ fontSize:13, color:B.orange, marginBottom:16, ...H() }}>🏅 You are officially a Feline Friend!</div>}
-      <button onClick={reset} style={{ padding:"11px 26px", background:B.orange, color:B.white, border:"none", borderRadius:999, ...H() }}>Try Again 🔄</button>
+      {score===QS.length&&<div style={{fontSize:12,color:B.orange,marginBottom:12,...H()}}>🏅 You are officially a Feline Friend!</div>}
+      <button onClick={reset} style={{padding:"9px 22px",background:B.orange,color:B.white,border:"none",borderRadius:999,...H()}}>Try Again 🔄</button>
     </div>
   );
 
   const q=QS[qi];
   return (
-    <div style={{ background:B.white, borderRadius:16, padding:"20px 18px", boxShadow:"0 4px 16px rgba(0,0,0,0.07)" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
-        <span style={{ color:"#6b7280", ...T() }}>Question {qi+1} of {QS.length}</span>
-        <span style={{ color:B.orange, ...H() }}>Score: {score}</span>
+    <div style={{display:"flex",flexDirection:"column",height:"100%",background:B.white,borderRadius:16,padding:"14px 16px",boxShadow:"0 4px 16px rgba(0,0,0,0.07)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:10,flexShrink:0}}>
+        <span style={{color:"#6b7280",...T()}}>Question {qi+1} of {QS.length}</span>
+        <span style={{color:B.orange,...H()}}>Score: {score}</span>
       </div>
-      <div style={{ background:B.cream, borderRadius:10, padding:"13px 15px", marginBottom:14 }}>
-        <div style={{ color:B.dark, ...H() }}>{q.q}</div>
+      <div style={{background:B.cream,borderRadius:10,padding:"11px 13px",marginBottom:12,flexShrink:0}}>
+        <div style={{color:B.dark,...H()}}>{q.q}</div>
       </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:9, marginBottom:14 }}>
+      <div style={{display:"flex",flexDirection:"column",gap:8,flex:1,minHeight:0,overflow:"hidden"}}>
         {q.opts.map((opt,i)=>{
           let bg="#f9fafb",border="#e5e7eb",col=B.dark;
-          if(sel!==null){ if(i===q.ans){bg="#f0fdf4";border="#22c55e";col="#166534";}else if(i===sel){bg="#fef2f2";border="#ef4444";col="#991b1b";} }
-          return <button key={i} onClick={()=>pick(i)} style={{ padding:"10px 14px", borderRadius:10, border:`2px solid ${border}`, background:bg, color:col, textAlign:"left", cursor:sel===null?"pointer":"default", ...T() }}>{["A","B","C","D"][i]}. {opt}</button>;
+          if(sel!==null){if(i===q.ans){bg="#f0fdf4";border="#22c55e";col="#166534";}else if(i===sel){bg="#fef2f2";border="#ef4444";col="#991b1b";}}
+          return <button key={i} onClick={()=>pick(i)} style={{padding:"9px 12px",borderRadius:10,border:`2px solid ${border}`,background:bg,color:col,textAlign:"left",cursor:sel===null?"pointer":"default",flexShrink:0,...T()}}>{["A","B","C","D"][i]}. {opt}</button>;
         })}
+        {sel!==null&&<>
+          <div style={{background:"#fffbeb",borderRadius:10,padding:"10px 12px",borderLeft:`4px solid ${B.yellow}`,flexShrink:0,...T()}}>
+            <span style={{...H()}}>💡 Did you know? </span>{q.fact}
+          </div>
+          <button onClick={next} style={{padding:10,background:B.orange,color:B.white,border:"none",borderRadius:999,flexShrink:0,...H()}}>
+            {qi+1<QS.length?"Next Question →":"See My Score!"}
+          </button>
+        </>}
       </div>
-      {sel!==null&&<>
-        <div style={{ background:"#fffbeb", borderRadius:10, padding:"11px 13px", borderLeft:`4px solid ${B.yellow}`, marginBottom:12, ...T() }}>
-          <span style={{ ...H() }}>💡 Did you know? </span>{q.fact}
-        </div>
-        <button onClick={next} style={{ width:"100%", padding:11, background:B.orange, color:B.white, border:"none", borderRadius:999, ...H() }}>
-          {qi+1<QS.length?"Next Question →":"See My Score!"}
-        </button>
-      </>}
     </div>
   );
 }
@@ -353,6 +354,7 @@ function App() {
   const total=isQuiz?0:slides.length;
   const ac=isQuiz?B.orange:slide.color;
   const isWelcome=!isQuiz&&slide.id==="welcome";
+  const hasTimeline=!isQuiz&&slide.id==="facts-4";
 
   return (
     <div className="app">
@@ -360,7 +362,7 @@ function App() {
       <div className="tab-bar">
         {TABS.map(t=>(
           <button key={t.id} onClick={()=>switchTab(t.id)}
-            style={{ padding:"8px 13px", borderRadius:999, border:`2px solid ${tab===t.id?B.orange:"#d1d5db"}`, background:tab===t.id?B.orange:B.white, color:tab===t.id?B.white:B.dark, whiteSpace:"nowrap", flexShrink:0, ...(tab===t.id?H():T()) }}>
+            style={{padding:"7px 12px",borderRadius:999,border:`2px solid ${tab===t.id?B.orange:"#d1d5db"}`,background:tab===t.id?B.orange:B.white,color:tab===t.id?B.white:B.dark,whiteSpace:"nowrap",flexShrink:0,...(tab===t.id?H():T())}}>
             {t.emoji} {t.label}
           </button>
         ))}
@@ -368,27 +370,40 @@ function App() {
 
       {/* Slide area */}
       <div className="slide-area">
-        {isQuiz ? <Quiz/> : (
-          <div className="slide-card" style={{ border:`2px solid ${ac}22` }}>
-            <div className="slide-text" style={{ marginBottom:8 }}>
-              <span style={{ display:"inline-block", background:ac, color:ac===B.yellow?B.dark:B.white, borderRadius:999, padding:"2px 13px", ...H({fontSize:12}) }}>
+        {isQuiz?<Quiz/>:(
+          <div className="slide-card" style={{border:`2px solid ${ac}22`}}>
+
+            {/* Counter */}
+            <div className="slide-fixed" style={{marginBottom:6}}>
+              <span style={{display:"inline-block",background:ac,color:ac===B.yellow?B.dark:B.white,borderRadius:999,padding:"2px 12px",...H({fontSize:11})}}>
                 {idx+1} / {total}
               </span>
             </div>
-            <div className="slide-text" style={{ ...H({fontSize:20, lineHeight:1.25, marginBottom:6, color:B.dark}) }}>
+
+            {/* Title */}
+            <div className="slide-fixed" style={{...H({fontSize:18,lineHeight:1.2,marginBottom:6,color:B.dark})}}>
               {slide.title}
             </div>
-            {isWelcome ? (
+
+            {/* Image — flex:1 fills remaining space */}
+            {isWelcome?(
               <img src="img-badge.png" alt="Feline Friend Badge" className="badge-img" onError={e=>e.target.style.display="none"}/>
-            ) : IMGS[slide.id] ? (
+            ):IMGS[slide.id]?(
               <img src={IMGS[slide.id]} alt={slide.title} className="slide-img" onError={e=>e.target.style.display="none"}/>
-            ) : null}
-            <div className="slide-text" style={{ ...T({color:"#374151", lineHeight:1.7, marginBottom:6, whiteSpace:"pre-line"}) }}>
-              {slide.body}
-            </div>
-            <SlideVisual slideId={slide.id}/>
+            ):null}
+
+            {/* Body */}
+            <BodyText
+              text={slide.body}
+              style={{...T({color:"#374151",lineHeight:1.6,marginBottom:6,flexShrink:0})}}
+            />
+
+            {/* Timeline (facts-4 only) */}
+            {hasTimeline&&<Timeline/>}
+
+            {/* Callout */}
             {slide.callout&&(
-              <div className="slide-callout" style={{ background:slide.bg, borderRadius:10, padding:"10px 13px", borderLeft:`4px solid ${ac}`, ...T({color:B.dark, marginTop:8}) }}>
+              <div className="slide-fixed" style={{background:slide.bg,borderRadius:10,padding:"9px 12px",borderLeft:`4px solid ${ac}`,...T({color:B.dark,marginTop:6})}}>
                 {slide.callout}
               </div>
             )}
@@ -396,51 +411,48 @@ function App() {
         )}
       </div>
 
-      {/* Nav bar */}
+      {/* Nav */}
       {!isQuiz&&(
         <div className="nav-bar">
-          {/* Slide nav */}
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%" }}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%"}}>
             <button onClick={()=>go(-1)} disabled={idx===0}
-              style={{ padding:"8px 16px", borderRadius:999, border:"none", background:idx===0?"#e5e7eb":ac, color:idx===0?"#9ca3af":ac===B.yellow?B.dark:B.white, ...H({fontSize:13}) }}>
+              style={{padding:"7px 14px",borderRadius:999,border:"none",background:idx===0?"#e5e7eb":ac,color:idx===0?"#9ca3af":ac===B.yellow?B.dark:B.white,...H({fontSize:12})}}>
               ← Back
             </button>
-            <div style={{ display:"flex", gap:5, flexWrap:"wrap", justifyContent:"center", maxWidth:160 }}>
+            <div style={{display:"flex",gap:5,flexWrap:"wrap",justifyContent:"center",maxWidth:160}}>
               {slides.map((_,i)=>(
                 <div key={i} onClick={()=>setIdxMap(prev=>({...prev,[tab]:i}))}
-                  style={{ width:i===idx?16:7, height:7, borderRadius:999, background:i===idx?ac:"#d1d5db", cursor:"pointer", transition:"all .3s", flexShrink:0 }}/>
+                  style={{width:i===idx?16:7,height:7,borderRadius:999,background:i===idx?ac:"#d1d5db",cursor:"pointer",transition:"all .3s",flexShrink:0}}/>
               ))}
             </div>
             <button onClick={()=>go(1)} disabled={idx===total-1}
-              style={{ padding:"8px 16px", borderRadius:999, border:"none", background:idx===total-1?"#e5e7eb":ac, color:idx===total-1?"#9ca3af":ac===B.yellow?B.dark:B.white, ...H({fontSize:13}) }}>
+              style={{padding:"7px 14px",borderRadius:999,border:"none",background:idx===total-1?"#e5e7eb":ac,color:idx===total-1?"#9ca3af":ac===B.yellow?B.dark:B.white,...H({fontSize:12})}}>
               Next →
             </button>
           </div>
-          {/* Section nav */}
           {(()=>{
-            const tabIds=TABS.map(t=>t.id);
-            const ti=tabIds.indexOf(tab);
-            const prev=ti>0?TABS[ti-1]:null;
-            const next=ti<TABS.length-1?TABS[ti+1]:null;
+            const tids=TABS.map(t=>t.id);
+            const ti=tids.indexOf(tab);
+            const pv=ti>0?TABS[ti-1]:null;
+            const nx=ti<TABS.length-1?TABS[ti+1]:null;
             return (
-              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", width:"100%", borderTop:"1px solid #e5e7eb", paddingTop:7 }}>
-                <button onClick={()=>prev&&switchTab(prev.id)} disabled={!prev}
-                  style={{ padding:"7px 12px", borderRadius:999, border:`1.5px solid ${prev?B.dark:"#e5e7eb"}`, background:"transparent", color:prev?B.dark:"#d1d5db", whiteSpace:"nowrap", ...H({fontSize:11}) }}>
-                  {prev?`← ${prev.emoji} ${prev.label}`:""}
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",width:"100%",borderTop:"1px solid #e5e7eb",paddingTop:6}}>
+                <button onClick={()=>pv&&switchTab(pv.id)} disabled={!pv}
+                  style={{padding:"6px 10px",borderRadius:999,border:`1.5px solid ${pv?B.dark:"#e5e7eb"}`,background:"transparent",color:pv?B.dark:"#d1d5db",whiteSpace:"nowrap",...H({fontSize:11})}}>
+                  {pv?`← ${pv.emoji} ${pv.label}`:""}
                 </button>
-                <span style={{ ...T({fontSize:11, color:"#9ca3af", textAlign:"center"}) }}>
+                <span style={{...T({fontSize:11,color:"#9ca3af",textAlign:"center"})}}>
                   Section {TABS.findIndex(t=>t.id===tab)+1} of {TABS.length}
                 </span>
-                <button onClick={()=>next&&switchTab(next.id)} disabled={!next}
-                  style={{ padding:"7px 12px", borderRadius:999, border:`1.5px solid ${next?B.dark:"#e5e7eb"}`, background:"transparent", color:next?B.dark:"#d1d5db", whiteSpace:"nowrap", ...H({fontSize:11}) }}>
-                  {next?`${next.emoji} ${next.label} →`:""}
+                <button onClick={()=>nx&&switchTab(nx.id)} disabled={!nx}
+                  style={{padding:"6px 10px",borderRadius:999,border:`1.5px solid ${nx?B.dark:"#e5e7eb"}`,background:"transparent",color:nx?B.dark:"#d1d5db",whiteSpace:"nowrap",...H({fontSize:11})}}>
+                  {nx?`${nx.emoji} ${nx.label} →`:""}
                 </button>
               </div>
             );
           })()}
         </div>
       )}
-
       <div className="footer">Data: ASPCA &amp; Shelter Animals Count (2023–24) • Felius Rescue Rangers © 2026</div>
     </div>
   );
